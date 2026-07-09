@@ -2,7 +2,7 @@
 
 Static Harbor lets you publish a small static website from one HTML file or a ZIP file. You get a public link, can add a password, can set an expiry date, and can see simple visit counts.
 
-Your uploaded site files are stored in Cloudflare R2. Site settings and analytics are stored in Cloudflare D1. The public site is served by a Cloudflare Dynamic Worker.
+Your uploaded site files are stored in Cloudflare R2 under `{siteId}/...` in a single bucket. Site settings and analytics are stored in Cloudflare D1. The public site is served directly from the main Worker, which reads assets from R2.
 
 ## How to Open It
 
@@ -41,7 +41,6 @@ Before a real deploy, create the Cloudflare resources and replace the placeholde
 
 - D1 database named `static-host-db`
 - R2 bucket named `static-host-assets`
-- Dynamic Worker Loader binding named `LOADER`
 - A real `COOKIE_SECRET` using `wrangler secret put COOKIE_SECRET`
 
 Then run:
@@ -57,6 +56,7 @@ The deploy script builds the dashboard and Worker with the Cloudflare Vite plugi
 - If `wrangler d1 migrations apply` asks about a missing database, create the D1 database in Cloudflare and copy its ID into `wrangler.jsonc`.
 - If port `5173` is busy, Vite will print the port it chose.
 - If `bun run dev` cannot start the Worker runtime, try `bun run worker:dev` as a fallback.
+- After schema changes, reset local D1 with `rm -rf .wrangler/state/v3/d1 && bun run db:migration:apply:local`.
 
 ## Testing
 
@@ -69,10 +69,8 @@ The end-to-end test signs up, creates a site, uploads an HTML file, opens the ge
 
 ## Stack
 
-Vite, React, Tailwind, Supabase Lite, Cloudflare Workers, Dynamic Workers, D1, and R2.
+Vite, React, Tailwind, Supabase Lite, Cloudflare Workers, D1, and R2.
 
 ## Todo
 
-- [ ] batch analytics writes
-- [ ] add rate limiting to both api and static serve
-- [ ] ensure proper caching for static serve
+- [ ] ensure proper caching for static serve

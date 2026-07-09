@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNotice } from "../context/NoticeContext";
 import { useSiteDetail } from "../hooks/useSiteDetail";
 import { mapSite } from "../shared/mappers";
-import type { DeploymentSummary, SiteSummary } from "../shared/types";
+import type { SiteSummary } from "../shared/types";
 import { supabase } from "../lib/supabase";
 import { readAccessFormFields } from "../lib/access-form";
 import { isValidUploadFile } from "../lib/upload";
@@ -29,7 +29,6 @@ export default function SiteDetailPage() {
 
   const visibleSite = detail?.site ?? null;
   const publicUrl = visibleSite ? `${window.location.origin}/s/${visibleSite.slug}/` : "";
-  const hasDeployment = Boolean(detail?.deployment ?? visibleSite?.activeDeploymentId);
   const totalViews = detail?.analytics.reduce((sum, row) => sum + row.views, 0) ?? 0;
 
   if (!visibleSite) {
@@ -68,9 +67,9 @@ export default function SiteDetailPage() {
         headers: { Authorization: `Bearer ${token}` },
         body: form,
       });
-      const data = (await response.json()) as { site?: SiteSummary; deployment?: DeploymentSummary; publicUrl?: string; error?: string };
-      if (!response.ok || !data.site || !data.deployment) throw new Error(data.error ?? "Deploy failed.");
-      setDetail({ site: data.site, deployment: data.deployment, analytics: detail?.analytics ?? [] });
+      const data = (await response.json()) as { site?: SiteSummary; publicUrl?: string; error?: string };
+      if (!response.ok || !data.site) throw new Error(data.error ?? "Deploy failed.");
+      setDetail({ site: data.site, analytics: detail?.analytics ?? [] });
       setReplacementUpload(null);
       setShowReplacementUpload(false);
       setNotice({ tone: "ok", text: "Upload replaced. The public URL now serves the new version." });
@@ -108,12 +107,20 @@ export default function SiteDetailPage() {
   }
 
   async function deleteCurrentSite() {
-    if (!window.confirm(`Delete ${site.name}? This removes the site, deployments, settings, and analytics.`)) return;
+    if (!window.confirm(`Delete ${site.name}? This removes the site, uploaded files, settings, and analytics.`)) return;
     setBusy(true);
     clearNotice();
     try {
-      const { error: deleteError } = await supabase.from("sites").delete().eq("id", site.id);
-      if (deleteError) throw new Error(deleteError.message);
+      const token = await getAccessToken();
+      if (!token) throw new Error("Sign in before deleting.");
+      const response = await fetch(`/api/sites/${site.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error ?? "Could not delete site.");
+      }
       navigate("/dashboard");
       setNotice({ tone: "ok", text: `${site.name} was deleted.` });
     } catch (deleteError) {
@@ -126,10 +133,8 @@ export default function SiteDetailPage() {
   return (
     <SiteManage
       site={site}
-      deployment={detail?.deployment ?? null}
       analytics={detail?.analytics ?? []}
       publicUrl={publicUrl}
-      hasDeployment={hasDeployment}
       replacementUpload={replacementUpload}
       showReplacementUpload={showReplacementUpload}
       busy={busy}

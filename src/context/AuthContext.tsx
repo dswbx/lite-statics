@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { ensureProfile } from "../lib/ensure-profile";
 import { supabase } from "../lib/supabase";
 
 interface AuthContextValue {
@@ -22,29 +21,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data.session?.access_token ?? null;
   }, []);
 
-  const syncSession = useCallback(async (session: { user: { id: string; email?: string | null } } | null) => {
+  const syncSession = useCallback((session: { user: { id: string; email?: string | null } } | null) => {
     setSessionEmail(session?.user.email ?? "");
     setUserId(session?.user.id ?? "");
     setAuthReady(true);
-    if (!session?.user.id || !session.user.email) return;
-
-    await ensureProfile(session.user.id, session.user.email);
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (cancelled) return;
-      void syncSession(data.session);
-    });
-
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
-      void syncSession(session);
+      syncSession(session);
     });
 
     return () => {
-      cancelled = true;
       subscription.subscription.unsubscribe();
     };
   }, [syncSession]);

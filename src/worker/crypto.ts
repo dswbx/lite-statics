@@ -1,10 +1,6 @@
 const PASSWORD_ITERATIONS = 120_000;
 const SIGNING_ALGORITHM = { name: "HMAC", hash: "SHA-256" } as const;
 
-export function randomId(prefix: string): string {
-  return `${prefix}_${crypto.randomUUID().replaceAll("-", "")}`;
-}
-
 export function bytesToBase64(bytes: ArrayBuffer): string {
   const view = new Uint8Array(bytes);
   let text = "";

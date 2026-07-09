@@ -12,6 +12,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsRow[] }) {
       <h3>
         <BarChart3 size={20} /> Analytics
       </h3>
+      <p className="hint">Visit events may take up to a minute to appear while they are collected in the background.</p>
       <div className="analyticsGrid">
         <div className="chartPanel">
           <strong>Views by day</strong>

@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { AppEnv, FetchExecutionContext } from "./client";
 import type { Env } from "./env";
+import { rateLimit } from "./middleware/rate-limit";
 import publicRoutes from "./routes/public";
 import sitesRoutes from "./routes/sites";
 import { getLiteApp } from "./supalite";
@@ -23,6 +24,8 @@ export function createApp() {
       c.set("appFetch", appFetch);
       await next();
    });
+
+   app.use("*", rateLimit);
 
    app.onError((error) => {
       if (error instanceof HTTPException) {

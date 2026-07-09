@@ -1,5 +1,11 @@
 export type AccessMode = "public" | "password";
 
+export interface SiteAssetSummary {
+  pathname: string;
+  contentType: string;
+  size: number;
+}
+
 export interface SiteSummary {
   id: string;
   ownerId: string;
@@ -8,25 +14,12 @@ export interface SiteSummary {
   accessMode: AccessMode;
   expiresAt: string | null;
   disabledAt: string | null;
-  activeDeploymentId: string | null;
+  assetCount: number | null;
+  totalBytes: number | null;
+  deployedAt: string | null;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface DeploymentSummary {
-  id: string;
-  siteId: string;
-  workerId: string;
-  assetCount: number;
-  totalBytes: number;
-  createdAt: string;
-  assets: DeploymentAssetSummary[];
-}
-
-export interface DeploymentAssetSummary {
-  pathname: string;
-  contentType: string;
-  size: number;
+  assets: SiteAssetSummary[];
 }
 
 export interface AssetManifestEntry {
@@ -52,12 +45,10 @@ export interface CreateSiteResponse {
 
 export interface DeploySiteResponse {
   site: SiteSummary;
-  deployment: DeploymentSummary;
   publicUrl: string;
 }
 
 export interface SiteDetailResponse {
   site: SiteSummary;
-  deployment: DeploymentSummary | null;
   analytics: AnalyticsRow[];
 }

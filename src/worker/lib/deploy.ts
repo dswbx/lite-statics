@@ -1,26 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { assetKey } from "../assets";
-import { sha256Hex } from "../crypto";
 import type { Env } from "../env";
-import { mapDeployment, mapSite, type DeploymentRow, type SiteRow } from "../../shared/mappers";
+import { mapSite, type SiteRow } from "../../shared/mappers";
 import type { StoredAssetManifest } from "../../shared/types";
 import { normalizeUpload } from "../upload";
+import { assetKey } from "./storage";
 
-export interface SiteAccessRecord {
-  site: SiteRow;
-  deployment: DeploymentRow | null;
-}
-
-export async function getSiteBySlug(client: SupabaseClient, slug: string): Promise<SiteAccessRecord | null> {
+export async function getSiteBySlug(client: SupabaseClient, slug: string): Promise<SiteRow | null> {
   const { data: site, error } = await client.from("sites").select("*").eq("slug", slug).maybeSingle<SiteRow>();
   if (error || !site) return null;
-  if (!site.active_deployment_id) return { site, deployment: null };
-  const { data: deployment } = await client
-    .from("deployments")
-    .select("*")
-    .eq("id", site.active_deployment_id)
-    .maybeSingle<DeploymentRow>();
-  return { site, deployment: deployment ?? null };
+  return site;
 }
 
 export async function deploySite(
@@ -28,41 +16,35 @@ export async function deploySite(
   client: SupabaseClient,
   siteId: string,
   file: File,
-): Promise<{ site: SiteRow; deployment: DeploymentRow; publicUrl: string }> {
+): Promise<{ site: SiteRow; publicUrl: string }> {
   const { data: site, error: siteError } = await client.from("sites").select("*").eq("id", siteId).single<SiteRow>();
   if (siteError || !site) throw new Error("Site not found");
 
   const normalized = await normalizeUpload(file);
-  const deploymentId = crypto.randomUUID();
-  const workerId = `${siteId}:${deploymentId}:${await sha256Hex(JSON.stringify(normalized.manifest))}`;
+  const previousManifest = parseManifestJson(site.manifest_json);
 
   await Promise.all(
     normalized.assets.map((asset) =>
-      env.ASSET_BUCKET.put(assetKey(siteId, deploymentId, asset.pathname), asset.bytes, {
+      env.ASSET_BUCKET.put(assetKey(siteId, asset.pathname), asset.bytes, {
         httpMetadata: { contentType: asset.contentType },
       }),
     ),
   );
 
+  if (previousManifest) {
+    await deleteStaleAssets(env, siteId, previousManifest, normalized.manifest);
+  }
+
   const now = new Date().toISOString();
-  const { data: deployment, error: deploymentError } = await client
-    .from("deployments")
-    .insert({
-      id: deploymentId,
-      site_id: siteId,
-      worker_id: workerId,
+  const { data: updatedSite, error: updateError } = await client
+    .from("sites")
+    .update({
       asset_count: normalized.assets.length,
       total_bytes: normalized.totalBytes,
       manifest_json: JSON.stringify(normalized.manifest),
-      created_at: now,
+      deployed_at: site.deployed_at ?? now,
+      updated_at: now,
     })
-    .select("*")
-    .single<DeploymentRow>();
-  if (deploymentError || !deployment) throw new Error(deploymentError?.message ?? "Deployment could not be saved.");
-
-  const { data: updatedSite, error: updateError } = await client
-    .from("sites")
-    .update({ active_deployment_id: deploymentId, updated_at: now })
     .eq("id", siteId)
     .select("*")
     .single<SiteRow>();
@@ -70,19 +52,35 @@ export async function deploySite(
 
   return {
     site: updatedSite,
-    deployment,
     publicUrl: `/s/${updatedSite.slug}/`,
   };
 }
 
-export function deployResponseBody(result: { site: SiteRow; deployment: DeploymentRow; publicUrl: string }) {
+export async function deleteSiteAssets(env: Env, siteId: string): Promise<void> {
+  const listed = await env.ASSET_BUCKET.list({ prefix: `${siteId}/` });
+  if (listed.objects.length === 0) return;
+  await Promise.all(listed.objects.map((object) => env.ASSET_BUCKET.delete(object.key)));
+}
+
+export function deployResponseBody(result: { site: SiteRow; publicUrl: string }) {
   return {
     site: mapSite(result.site),
-    deployment: mapDeployment(result.deployment),
     publicUrl: result.publicUrl,
   };
 }
 
-export function parseManifest(row: DeploymentRow): StoredAssetManifest {
-  return JSON.parse(row.manifest_json) as StoredAssetManifest;
+function parseManifestJson(manifestJson: string | null): StoredAssetManifest | null {
+  if (!manifestJson) return null;
+  return JSON.parse(manifestJson) as StoredAssetManifest;
+}
+
+async function deleteStaleAssets(
+  env: Env,
+  siteId: string,
+  previous: StoredAssetManifest,
+  next: StoredAssetManifest,
+): Promise<void> {
+  const nextPaths = new Set(Object.keys(next));
+  const stalePaths = Object.keys(previous).filter((pathname) => !nextPaths.has(pathname));
+  await Promise.all(stalePaths.map((pathname) => env.ASSET_BUCKET.delete(assetKey(siteId, pathname))));
 }

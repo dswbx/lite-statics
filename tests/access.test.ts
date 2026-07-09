@@ -7,6 +7,10 @@ const env = {
   COOKIE_SECRET: "test-secret",
 } as Env;
 
+const deployedManifest = JSON.stringify({
+  "/index.html": { contentType: "text/html; charset=utf-8", size: 120 },
+});
+
 describe("access decisions", () => {
   it("allows public deployed sites", async () => {
     const decision = await decideAccess(env, new Request("https://example.com/s/demo/"), {
@@ -17,13 +21,28 @@ describe("access decisions", () => {
       password_salt: null,
       expires_at: null,
       disabled_at: null,
-      active_deployment_id: "dep_1",
+      manifest_json: deployedManifest,
     });
 
     expect(decision.status).toBe("allow");
   });
 
-  it("blocks expired sites before loading a Dynamic Worker", async () => {
+  it("blocks sites without an upload", async () => {
+    const decision = await decideAccess(env, new Request("https://example.com/s/demo/"), {
+      id: "site_1",
+      slug: "demo",
+      access_mode: "public",
+      password_hash: null,
+      password_salt: null,
+      expires_at: null,
+      disabled_at: null,
+      manifest_json: null,
+    });
+
+    expect(decision).toEqual({ status: "inactive", reason: "not-deployed" });
+  });
+
+  it("blocks expired sites before serving assets", async () => {
     const decision = await decideAccess(env, new Request("https://example.com/s/demo/"), {
       id: "site_1",
       slug: "demo",
@@ -32,7 +51,7 @@ describe("access decisions", () => {
       password_salt: null,
       expires_at: "2020-01-01T00:00:00.000Z",
       disabled_at: null,
-      active_deployment_id: "dep_1",
+      manifest_json: deployedManifest,
     });
 
     expect(decision).toEqual({ status: "inactive", reason: "expired" });
@@ -51,7 +70,7 @@ describe("access decisions", () => {
       password_salt: "salt",
       expires_at: null,
       disabled_at: null,
-      active_deployment_id: "dep_1",
+      manifest_json: deployedManifest,
     });
 
     expect(decision.status).toBe("allow");

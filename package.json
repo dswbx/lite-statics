@@ -1,5 +1,5 @@
 {
-   "name": "static-host-dynamic-workers",
+   "name": "static-host",
    "private": true,
    "version": "0.0.0",
    "type": "module",
@@ -18,11 +18,10 @@
       "db:migration:list:local": "wrangler d1 migrations list static-host-db --local",
       "db:migration:apply:local": "bun run db:migration:generate && wrangler d1 migrations apply static-host-db --local",
       "db:migration:apply:prod": "bun run db:migration:generate && wrangler d1 migrations apply static-host-db --remote",
-      "deploy": "bun run build && bun run db:migration:apply:prod && wrangler deploy --config dist/static_host_dynamic_workers/wrangler.json",
-      "deploy:dry-run": "bun run build && wrangler deploy --config dist/static_host_dynamic_workers/wrangler.json --dry-run"
+      "deploy": "bun run build && bun run db:migration:apply:prod && wrangler deploy --config dist/static_host/wrangler.json",
+      "deploy:dry-run": "bun run build && wrangler deploy --config dist/static_host/wrangler.json --dry-run"
    },
    "dependencies": {
-      "@cloudflare/worker-bundler": "0.2.1",
       "@supabase/lite": "next",
       "@supabase/supabase-js": "^2.97.0",
       "hono": "^4.12.28",

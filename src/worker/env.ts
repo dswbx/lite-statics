@@ -1,27 +1,18 @@
-import type { WorkerEntrypoint } from "cloudflare:workers";
-
-export interface AssetBindingProps {
-  siteId: string;
-  deploymentId: string;
-}
-
-export interface AssetBindingStub {
-  fetch(request: Request): Promise<Response>;
-}
+import type { ViewTrackingJob } from "../shared/view-tracking";
 
 export interface Env {
   DB: D1Database;
   ASSET_BUCKET: R2Bucket;
   DASHBOARD: Fetcher;
-  LOADER: WorkerLoader;
-  ENVIRONMENT: string;
+  VIEW_TRACKING_QUEUE: Queue<ViewTrackingJob>;
+  RATE_LIMIT_AUTH: RateLimit;
+  RATE_LIMIT_API: RateLimit;
+  RATE_LIMIT_REST: RateLimit;
+  RATE_LIMIT_STATIC: RateLimit;
+  RATE_LIMIT_DEFAULT: RateLimit;
   ACCESS_COOKIE_NAME: string;
   COOKIE_SECRET: string;
   JWT_SECRET: string;
 }
 
-export type WorkerContext = ExecutionContext & {
-  exports: {
-    AssetBinding(props: { props: AssetBindingProps }): WorkerEntrypoint<Env, AssetBindingProps> & AssetBindingStub;
-  };
-};
+export type WorkerContext = ExecutionContext;

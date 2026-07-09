@@ -15,13 +15,13 @@ export interface AccessSite {
   password_salt: string | null;
   expires_at: string | null;
   disabled_at: string | null;
-  active_deployment_id: string | null;
+  manifest_json: string | null;
 }
 
 export async function decideAccess(env: Env, request: Request, site: AccessSite): Promise<AccessDecision> {
   if (site.disabled_at) return { status: "inactive", reason: "disabled" };
   if (site.expires_at && Date.parse(site.expires_at) <= Date.now()) return { status: "inactive", reason: "expired" };
-  if (!site.active_deployment_id) return { status: "inactive", reason: "not-deployed" };
+  if (!site.manifest_json) return { status: "inactive", reason: "not-deployed" };
   if (site.access_mode === "public") return { status: "allow" };
 
   const cookieValue = parseCookies(request).get(env.ACCESS_COOKIE_NAME);

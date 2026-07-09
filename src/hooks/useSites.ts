@@ -1,30 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
 import { fetchSiteSummaries } from "../lib/sites";
 import type { SiteSummary } from "../shared/types";
+import { useAsyncLoad } from "./useAsyncLoad";
 
 export function useSites() {
-  const [sites, setSites] = useState<SiteSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    const result = await fetchSiteSummaries();
-    if (result.error) {
-      setError(true);
-      setSites([]);
-      setLoading(false);
-      return false;
-    }
-    setSites(result.sites);
-    setLoading(false);
-    return true;
-  }, []);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
+  const { data: sites, loading, error, reload, setData: setSites } = useAsyncLoad<SiteSummary[], boolean>(
+    async () => {
+      const result = await fetchSiteSummaries();
+      if (result.error) return { data: [], error: true };
+      return { data: result.sites, error: false };
+    },
+    [],
+    {
+      initialData: [],
+      cacheKey: "sites",
+    },
+  );
 
   return { sites, loading, error, reload, setSites };
 }

@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { NewSiteForm } from "../components/dashboard/NewSiteForm";
 import { useAuth } from "../context/AuthContext";
 import { useNotice } from "../context/NoticeContext";
-import type { DeploymentSummary, SiteSummary } from "../shared/types";
+import type { SiteSummary } from "../shared/types";
 import { supabase } from "../lib/supabase";
 import { readAccessFormFields } from "../lib/access-form";
 import { isValidUploadFile, previewUploadAssets, slugify, titleFromFile, uniqueSlug } from "../lib/upload";
@@ -76,11 +76,10 @@ export default function NewSitePage() {
       });
       const deployed = (await deployResponse.json()) as {
         site?: SiteSummary;
-        deployment?: DeploymentSummary;
         publicUrl?: string;
         error?: string;
       };
-      if (!deployResponse.ok || !deployed.site || !deployed.deployment) {
+      if (!deployResponse.ok || !deployed.site) {
         throw new Error(deployed.error ?? "Upload failed.");
       }
 

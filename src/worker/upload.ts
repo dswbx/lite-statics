@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { buildAssetManifest } from "@cloudflare/worker-bundler";
+import { buildAssetManifest } from "./lib/assets";
 import type { StoredAssetManifest } from "../shared/types";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;

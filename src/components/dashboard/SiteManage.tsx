@@ -13,9 +13,9 @@ import {
   Upload,
 } from "lucide-react";
 import { useState } from "react";
-import type { AnalyticsRow, DeploymentSummary, SiteSummary } from "../../shared/types";
+import type { AnalyticsRow, SiteSummary } from "../../shared/types";
 import { formatBytes, formatDate } from "../../lib/format";
-import { siteDisplayStatus } from "../../lib/site";
+import { siteDisplayStatus, siteHasUpload } from "../../lib/site";
 import { AnalyticsPanel } from "../analytics/AnalyticsPanel";
 import { UploadBox } from "../upload/UploadBox";
 import { Metric } from "../ui/Metric";
@@ -23,10 +23,8 @@ import { AccessSettingsFields } from "./AccessSettingsFields";
 
 export function SiteManage({
   site,
-  deployment,
   analytics,
   publicUrl,
-  hasDeployment,
   replacementUpload,
   showReplacementUpload,
   busy,
@@ -40,10 +38,8 @@ export function SiteManage({
   onDelete,
 }: {
   site: SiteSummary;
-  deployment: DeploymentSummary | null;
   analytics: AnalyticsRow[];
   publicUrl: string;
-  hasDeployment: boolean;
   replacementUpload: File | null;
   showReplacementUpload: boolean;
   busy: boolean;
@@ -57,9 +53,10 @@ export function SiteManage({
   onDelete: (site: SiteSummary) => void;
 }) {
   const [showAllAssets, setShowAllAssets] = useState(false);
-  const [accessEditing, setAccessEditing] = useState(!hasDeployment);
-  const shownAssets = showAllAssets ? (deployment?.assets ?? []) : (deployment?.assets.slice(0, 3) ?? []);
-  const extraAssetCount = Math.max((deployment?.assets.length ?? 0) - shownAssets.length, 0);
+  const hasUpload = siteHasUpload(site);
+  const [accessEditing, setAccessEditing] = useState(!hasUpload);
+  const shownAssets = showAllAssets ? site.assets : site.assets.slice(0, 3);
+  const extraAssetCount = Math.max(site.assets.length - shownAssets.length, 0);
   const status = siteDisplayStatus(site);
   const isDisabled = status.kind === "disabled";
 
@@ -76,7 +73,7 @@ export function SiteManage({
             <span className={`statusPill ${status.kind}`}>{status.label}</span>
           </div>
           {isDisabled && <p className="disabledHint">This site is disabled. The public URL shows an inactive page until access is re-enabled.</p>}
-          {hasDeployment ? (
+          {hasUpload ? (
             <a href={publicUrl} target="_blank" rel="noreferrer">
               {publicUrl}
             </a>
@@ -85,18 +82,18 @@ export function SiteManage({
           )}
         </div>
         <div className="siteActions">
-          <a className={`primaryCta ${!hasDeployment || isDisabled ? "disabled" : ""}`} href={hasDeployment ? publicUrl : undefined} target="_blank" rel="noreferrer" aria-disabled={!hasDeployment || isDisabled}>
+          <a className={`primaryCta ${!hasUpload || isDisabled ? "disabled" : ""}`} href={hasUpload ? publicUrl : undefined} target="_blank" rel="noreferrer" aria-disabled={!hasUpload || isDisabled}>
             <ExternalLink size={18} /> Open site
           </a>
-          <button type="button" className="copyIcon" disabled={!hasDeployment || isDisabled} onClick={() => void navigator.clipboard.writeText(publicUrl)} aria-label="Copy public link">
+          <button type="button" className="copyIcon" disabled={!hasUpload || isDisabled} onClick={() => void navigator.clipboard.writeText(publicUrl)} aria-label="Copy public link">
             <Copy size={18} />
           </button>
         </div>
       </header>
 
       <div className="summaryGrid">
-        <Metric icon={<FileText />} label="Current upload" value={deployment ? `${deployment.assetCount} files` : "None"} />
-        <Metric icon={<FileArchive />} label="Size" value={deployment ? formatBytes(deployment.totalBytes) : "-"} />
+        <Metric icon={<FileText />} label="Current upload" value={hasUpload ? `${site.assetCount} files` : "None"} />
+        <Metric icon={<FileArchive />} label="Size" value={hasUpload && site.totalBytes != null ? formatBytes(site.totalBytes) : "-"} />
         <Metric icon={<Activity />} label="Views" value={String(totalViews)} />
       </div>
 
@@ -105,13 +102,13 @@ export function SiteManage({
           <h3>
             <CheckCircle2 size={20} /> Uploaded state
           </h3>
-          {deployment ? (
+          {hasUpload ? (
             <div className="uploadState">
               <strong>Live upload</strong>
               <span>
-                {deployment.assetCount} assets, {formatBytes(deployment.totalBytes)}
+                {site.assetCount} assets, {site.totalBytes != null ? formatBytes(site.totalBytes) : "-"}
               </span>
-              <span>Uploaded {formatDate(deployment.createdAt)}</span>
+              <span>Uploaded {site.deployedAt ? formatDate(site.deployedAt) : "-"}</span>
               <ul className="assetList" aria-label="Uploaded assets">
                 {shownAssets.map((asset) => (
                   <li key={asset.pathname}>
@@ -122,7 +119,7 @@ export function SiteManage({
                   </li>
                 ))}
               </ul>
-              {(deployment.assets.length > 3 || showAllAssets) && (
+              {(site.assets.length > 3 || showAllAssets) && (
                 <button type="button" className="textButton" onClick={() => setShowAllAssets((current) => !current)}>
                   {showAllAssets ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   {showAllAssets ? "Show fewer assets" : `Show ${extraAssetCount} more`}
@@ -132,19 +129,19 @@ export function SiteManage({
           ) : (
             <p className="empty">Nothing has been uploaded for this site yet.</p>
           )}
-          {hasDeployment && !showReplacementUpload && (
+          {hasUpload && !showReplacementUpload && (
             <button type="button" className="ghost" onClick={() => onShowReplacementUpload(true)}>
               <Upload size={18} /> Replace upload
             </button>
           )}
-          {(!hasDeployment || showReplacementUpload) && (
+          {(!hasUpload || showReplacementUpload) && (
             <form onSubmit={onDeploy} className="replaceForm">
               <UploadBox file={replacementUpload} dragActive={dragActive} onChooseFile={onChooseReplacement} onDrag={onDrag} label="Replace with HTML or ZIP" />
               <div className="buttonRow">
                 <button disabled={busy || !replacementUpload} type="submit">
                   <Upload size={18} /> Upload replacement
                 </button>
-                {hasDeployment && (
+                {hasUpload && (
                   <button type="button" className="ghost" onClick={() => onShowReplacementUpload(false)}>
                     Cancel
                   </button>
@@ -159,7 +156,7 @@ export function SiteManage({
             <h3>
               <LockKeyhole size={20} /> Access and expiry
             </h3>
-            {hasDeployment && !accessEditing && (
+            {hasUpload && !accessEditing && (
               <button type="button" className="copyIcon" onClick={() => setAccessEditing(true)} aria-label="Edit access settings">
                 <Pencil size={17} />
               </button>
@@ -192,7 +189,7 @@ export function SiteManage({
                 defaultAccessMode={site.accessMode}
                 defaultDisabled={Boolean(site.disabledAt)}
                 busy={busy}
-                onCancel={hasDeployment ? () => setAccessEditing(false) : undefined}
+                onCancel={hasUpload ? () => setAccessEditing(false) : undefined}
               />
             </form>
           )}
