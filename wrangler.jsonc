@@ -1,0 +1,41 @@
+{
+   "$schema": "./node_modules/wrangler/config-schema.json",
+   "name": "static-host-dynamic-workers",
+   "main": "src/worker/index.ts",
+   "compatibility_date": "2026-07-08",
+   "compatibility_flags": ["nodejs_compat"],
+   "observability": {
+      "enabled": true,
+      "head_sampling_rate": 1
+   },
+   "assets": {
+      "binding": "DASHBOARD",
+      "directory": "./dist",
+      "not_found_handling": "single-page-application",
+      "run_worker_first": ["/api/*", "/s/*"]
+   },
+   "worker_loaders": [
+      {
+         "binding": "LOADER"
+      }
+   ],
+   "d1_databases": [
+      {
+         "binding": "DB",
+         "database_name": "static-host-db",
+         "database_id": "00000000-0000-0000-0000-000000000000",
+         "migrations_dir": ".wrangler/migrations"
+      }
+   ],
+   "r2_buckets": [
+      {
+         "binding": "ASSET_BUCKET",
+         "bucket_name": "static-host-assets"
+      }
+   ],
+   "vars": {
+      "ENVIRONMENT": "production",
+      "ACCESS_COOKIE_NAME": "static_host_access",
+      "COOKIE_SECRET": "replace-with-wrangler-secret"
+   }
+}

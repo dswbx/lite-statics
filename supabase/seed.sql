@@ -1,0 +1,1 @@
+-- No seed data is required for the MVP.

@@ -1,0 +1,21 @@
+[api]
+port = 54321
+
+[db]
+driver = "sqlite-postgres"
+url = "file:./supabase/.temp/data.db"
+
+[db.migrations]
+schema_paths = ["./schemas/schema.sql"]
+
+[db.seed]
+sql_paths = ["./seed.sql"]
+
+[auth]
+enabled = true
+jwt_secret = "dev-secret-change-me-static-host"
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_confirmations = false
