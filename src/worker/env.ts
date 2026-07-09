@@ -17,6 +17,7 @@ export interface Env {
   ENVIRONMENT: string;
   ACCESS_COOKIE_NAME: string;
   COOKIE_SECRET: string;
+  JWT_SECRET: string;
 }
 
 export type WorkerContext = ExecutionContext & {

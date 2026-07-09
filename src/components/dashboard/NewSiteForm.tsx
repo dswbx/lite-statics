@@ -1,7 +1,8 @@
-import { Rocket } from "lucide-react";
+import { LockKeyhole, Rocket } from "lucide-react";
 import { PreviewAssetList } from "../upload/PreviewAssetList";
 import { UploadBox } from "../upload/UploadBox";
 import { titleFromFile, type PreviewAsset } from "../../lib/upload";
+import { AccessSettingsFields } from "./AccessSettingsFields";
 
 export function NewSiteForm({
   file,
@@ -56,6 +57,12 @@ export function NewSiteForm({
           <input value={slug} onChange={(event) => onSlug(event.currentTarget.value)} placeholder="auto-generated" />
         </label>
         <p className="previewUrl">Public URL preview: /s/{slug || "generated-slug"}/</p>
+      </section>
+      <section className="panel strong">
+        <h2>
+          <LockKeyhole size={20} /> Access and expiry
+        </h2>
+        <AccessSettingsFields showSubmit={false} />
         <button disabled={busy || !file} type="submit">
           <Rocket size={18} /> Create site and upload
         </button>

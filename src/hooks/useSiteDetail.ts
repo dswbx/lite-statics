@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import type { AnalyticsRow, DeploymentSummary, SiteDetailResponse, SiteSummary } from "../shared/types";
+import { mapAnalytics, mapDeployment, mapSite } from "../shared/mappers";
+import type { AnalyticsRow, DeploymentSummary, SiteSummary } from "../shared/types";
+import { supabase } from "../lib/supabase";
 
 export interface SiteWithDetail {
   site: SiteSummary;
@@ -26,16 +28,35 @@ export function useSiteDetail(siteId: string | undefined) {
     setError(null);
 
     void (async () => {
-      const response = await fetch(`/api/sites/${siteId}`);
+      const { data: site, error: siteError } = await supabase.from("sites").select("*").eq("id", siteId).maybeSingle();
       if (cancelled) return;
-      if (!response.ok) {
+      if (siteError || !site) {
         setDetail(null);
         setError("Could not load this site.");
         setLoading(false);
         return;
       }
-      const data = (await response.json()) as SiteDetailResponse;
-      setDetail({ site: data.site, deployment: data.deployment, analytics: data.analytics });
+
+      const deploymentId = site.active_deployment_id;
+      const [{ data: deployment }, { data: analytics }] = await Promise.all([
+        deploymentId
+          ? supabase.from("deployments").select("*").eq("id", deploymentId).maybeSingle()
+          : Promise.resolve({ data: null }),
+        supabase
+          .from("analytics_daily")
+          .select("day, path, status, country, referrer_host, views")
+          .eq("site_id", siteId)
+          .order("day", { ascending: false })
+          .order("views", { ascending: false })
+          .limit(100),
+      ]);
+
+      if (cancelled) return;
+      setDetail({
+        site: mapSite(site),
+        deployment: deployment ? mapDeployment(deployment) : null,
+        analytics: (analytics ?? []).map(mapAnalytics),
+      });
       setLoading(false);
     })();
 

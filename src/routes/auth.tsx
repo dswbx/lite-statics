@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { AuthForm } from "../components/auth/AuthForm";
-import { useAuth } from "../context/AuthContext";
 import { useNotice } from "../context/NoticeContext";
 import { supabase } from "../lib/supabase";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [busy, setBusy] = useState(false);
-  const { signIn, loadSites } = useAuth();
   const { notice, setNotice, clearNotice } = useNotice();
   const [, navigate] = useLocation();
 
@@ -21,24 +19,11 @@ export default function AuthPage() {
     setBusy(true);
     clearNotice();
     try {
-      const endpoint = mode === "signup" ? "/api/signup" : "/api/signin";
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = (await response.json().catch(() => ({}))) as { error?: string };
-      if (!response.ok) throw new Error(data.error ?? "Authentication failed.");
-      if (mode === "signup") {
-        await supabase.auth.signUp({ email, password }).catch(() => undefined);
-      } else {
-        await supabase.auth.signInWithPassword({ email, password }).catch(() => undefined);
-      }
-      signIn(email);
-      const loaded = await loadSites(email);
-      if (!loaded) {
-        setNotice({ tone: "bad", text: "Could not load sites. Run through the Cloudflare Worker dev server for API access." });
-      }
+      const result =
+        mode === "signup"
+          ? await supabase.auth.signUp({ email, password })
+          : await supabase.auth.signInWithPassword({ email, password });
+      if (result.error) throw new Error(result.error.message);
       navigate("/dashboard", { replace: true });
     } catch (error) {
       setNotice({ tone: "bad", text: error instanceof Error ? error.message : "Authentication failed." });

@@ -1,4 +1,4 @@
-import { Plus, Upload } from "lucide-react";
+import { LockKeyhole, Plus, Upload } from "lucide-react";
 import { useLocation } from "wouter";
 import type { SiteSummary } from "../../shared/types";
 import { siteAccessLabel, siteDisplayStatus } from "../../lib/site";
@@ -38,7 +38,10 @@ export function DashboardHome({ sites }: { sites: SiteSummary[] }) {
                 onClick={() => navigate(`/dashboard/sites/${encodeURIComponent(site.id)}`)}
               >
                 <span className={`statusPill ${status.kind}`}>{status.label}</span>
-                <strong>{site.name}</strong>
+                <strong>
+                  {site.name}
+                  {site.accessMode === "password" && <LockKeyhole size={14} aria-label="Password protected" className="inlineLock" />}
+                </strong>
                 <small>/s/{site.slug}/</small>
                 <span>{siteAccessLabel(site)}</span>
               </button>

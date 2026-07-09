@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import JSZip from "jszip";
-import { normalizeUpload, safeAssetPath } from "./upload";
+import { normalizeUpload, safeAssetPath } from "../src/worker/upload";
 
 describe("upload normalization", () => {
   it("normalizes a single HTML file to /index.html", async () => {

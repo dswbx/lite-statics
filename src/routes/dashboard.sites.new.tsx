@@ -4,10 +4,12 @@ import { NewSiteForm } from "../components/dashboard/NewSiteForm";
 import { useAuth } from "../context/AuthContext";
 import { useNotice } from "../context/NoticeContext";
 import type { DeploymentSummary, SiteSummary } from "../shared/types";
+import { supabase } from "../lib/supabase";
+import { readAccessFormFields } from "../lib/access-form";
 import { isValidUploadFile, previewUploadAssets, slugify, titleFromFile, uniqueSlug } from "../lib/upload";
 
 export default function NewSitePage() {
-  const { sessionEmail, sites, setSites } = useAuth();
+  const { userId, getAccessToken } = useAuth();
   const { setNotice, clearNotice } = useNotice();
   const [, navigate] = useLocation();
   const [busy, setBusy] = useState(false);
@@ -29,7 +31,11 @@ export default function NewSitePage() {
       setNewSiteAssets(assets);
       const fallbackName = titleFromFile(file.name);
       setNewSiteName((current) => current || fallbackName);
-      if (!slugEdited) setNewSiteSlug(uniqueSlug(fallbackName, sites.map((site) => site.slug)));
+      if (!slugEdited) {
+        const { data: existingSites } = await supabase.from("sites").select("slug");
+        const existingSlugs = (existingSites ?? []).map((site) => site.slug);
+        setNewSiteSlug(uniqueSlug(fallbackName, existingSlugs));
+      }
       clearNotice();
     } catch (error) {
       setNotice({ tone: "bad", text: error instanceof Error ? error.message : "Could not read upload." });
@@ -40,37 +46,54 @@ export default function NewSitePage() {
 
   async function createAndDeploySite(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!sessionEmail || !newSiteFile) {
+    if (!userId || !newSiteFile) {
       setNotice({ tone: "bad", text: "Upload assets before creating a site." });
       return;
     }
     const name = newSiteName.trim() || titleFromFile(newSiteFile.name);
     const slug = slugify(newSiteSlug || name);
+    const form = new FormData(event.currentTarget);
     setBusy(true);
     clearNotice();
     try {
-      const createResponse = await fetch("/api/sites", {
+      const accessFields = await readAccessFormFields(form);
+      const { data: created, error: createError } = await supabase
+        .from("sites")
+        .insert({ owner_id: userId, name, slug, ...accessFields })
+        .select("*")
+        .single();
+      if (createError || !created) throw new Error(createError?.message ?? "Could not create site.");
+
+      const token = await getAccessToken();
+      if (!token) throw new Error("Sign in before deploying.");
+
+      const deployForm = new FormData();
+      deployForm.set("file", newSiteFile);
+      const deployResponse = await fetch(`/api/sites/${created.id}/deploy`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ownerEmail: sessionEmail, name, slug }),
+        headers: { Authorization: `Bearer ${token}` },
+        body: deployForm,
       });
-      const created = (await createResponse.json()) as { site?: SiteSummary; error?: string };
-      if (!createResponse.ok || !created.site) throw new Error(created.error ?? "Could not create site.");
+      const deployed = (await deployResponse.json()) as {
+        site?: SiteSummary;
+        deployment?: DeploymentSummary;
+        publicUrl?: string;
+        error?: string;
+      };
+      if (!deployResponse.ok || !deployed.site || !deployed.deployment) {
+        throw new Error(deployed.error ?? "Upload failed.");
+      }
 
-      const form = new FormData();
-      form.set("file", newSiteFile);
-      const deployResponse = await fetch(`/api/sites/${created.site.id}/deploy`, { method: "POST", body: form });
-      const deployed = (await deployResponse.json()) as { site?: SiteSummary; deployment?: DeploymentSummary; publicUrl?: string; error?: string };
-      if (!deployResponse.ok || !deployed.site || !deployed.deployment) throw new Error(deployed.error ?? "Upload failed.");
-
-      setSites((current) => [deployed.site!, ...current.filter((site) => site.id !== deployed.site!.id)]);
       setNewSiteFile(null);
       setNewSiteAssets([]);
       setNewSiteName("");
       setNewSiteSlug("");
       setSlugEdited(false);
       navigate(`/dashboard/sites/${encodeURIComponent(deployed.site.id)}`);
-      setNotice({ tone: "ok", text: `Site published at ${new URL(deployed.publicUrl ?? `/s/${deployed.site.slug}/`, window.location.origin).toString()}` });
+      setNotice({
+        tone: "ok",
+        text: `Site published at ${new URL(deployed.publicUrl ?? `/s/${deployed.site.slug}/`, window.location.origin).toString()}`,
+      });
     } catch (error) {
       setNotice({ tone: "bad", text: error instanceof Error ? error.message : "Could not publish site." });
     } finally {

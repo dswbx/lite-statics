@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { decideAccess, signedAccessCookie } from "./access";
-import type { Env } from "./env";
+import { decideAccess, accessCookieSecure, signedAccessCookie } from "../src/worker/access";
+import type { Env } from "../src/worker/env";
 
 const env = {
   ACCESS_COOKIE_NAME: "access",
@@ -55,5 +55,11 @@ describe("access decisions", () => {
     });
 
     expect(decision.status).toBe("allow");
+  });
+
+  it("skips secure cookies on local http hosts", () => {
+    expect(accessCookieSecure(new Request("https://127.0.0.1:5180/api/sites/demo/password"))).toBe(false);
+    expect(accessCookieSecure(new Request("https://example.com/api/sites/demo/password", { headers: { "x-forwarded-proto": "https" } }))).toBe(true);
+    expect(accessCookieSecure(new Request("http://example.com/api/sites/demo/password"))).toBe(false);
   });
 });

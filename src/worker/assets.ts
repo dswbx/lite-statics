@@ -2,13 +2,16 @@ import { WorkerEntrypoint } from "cloudflare:workers";
 import { handleAssetRequest } from "@cloudflare/worker-bundler";
 import type { AssetManifest, AssetStorage } from "@cloudflare/worker-bundler";
 import type { Env, AssetBindingProps } from "./env";
-import { getDeployment, parseManifest } from "./db";
+import { parseManifest } from "./lib/deploy";
+import type { DeploymentRow } from "../shared/mappers";
 import type { StoredAssetManifest } from "../shared/types";
 
 export class AssetBinding extends WorkerEntrypoint<Env, AssetBindingProps> {
   async fetch(request: Request): Promise<Response> {
     const { siteId, deploymentId } = this.ctx.props;
-    const deployment = await getDeployment(this.env.DB, deploymentId);
+    const deployment = await this.env.DB.prepare("SELECT * FROM deployments WHERE id = ?")
+      .bind(deploymentId)
+      .first<DeploymentRow>();
     if (!deployment || deployment.site_id !== siteId) {
       return new Response("Assets not found", { status: 404 });
     }

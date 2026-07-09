@@ -73,6 +73,11 @@ for (const [index, file] of files.entries()) {
     translated = `${authSchema}\n${translated}`;
   }
 
+  translated = translated.replace(
+    /CREATE TABLE "_[a-z_]+_migrate_new"[\s\S]*?ALTER TABLE "_[a-z_]+_migrate_new" RENAME TO "[^"]+";;?\n?/gi,
+    "",
+  );
+
   const outputPath = join(outputDir, file);
 
   await writeFile(outputPath, translated, "utf8");

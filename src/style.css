@@ -139,6 +139,12 @@ input {
   text-transform: uppercase;
 }
 
+.inlineLock {
+  display: inline-block;
+  margin-left: 6px;
+  vertical-align: -2px;
+}
+
 .lede {
   color: #46544b;
   font-size: 1.08rem;

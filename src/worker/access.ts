@@ -41,6 +41,14 @@ export function accessCookiePayload(siteId: string): string {
   return `site:${siteId}`;
 }
 
+export function accessCookieSecure(request: Request): boolean {
+  const url = new URL(request.url);
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return false;
+  const forwarded = request.headers.get("x-forwarded-proto");
+  if (forwarded) return forwarded.split(",")[0]?.trim().toLowerCase() === "https";
+  return url.protocol === "https:";
+}
+
 export async function signedAccessCookie(env: Env, siteId: string): Promise<string> {
   return signValue(env.COOKIE_SECRET, accessCookiePayload(siteId));
 }
@@ -65,7 +73,7 @@ export function passwordPage(slug: string, reason = ""): Response {
   <body>
     <main>
       <h1>Private site</h1>
-      <form method="post" action="/api/public/${encodeURIComponent(slug)}/password">
+      <form method="post" action="/api/sites/${encodeURIComponent(slug)}/password">
         ${message}
         <input name="password" type="password" autocomplete="current-password" placeholder="Password" required />
         <button type="submit">Open site</button>

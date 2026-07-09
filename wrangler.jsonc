@@ -12,7 +12,7 @@
       "binding": "DASHBOARD",
       "directory": "./dist",
       "not_found_handling": "single-page-application",
-      "run_worker_first": ["/api/*", "/s/*"]
+      "run_worker_first": ["/api/*", "/s/*", "/auth/v1/*", "/rest/v1/*"]
    },
    "worker_loaders": [
       {
@@ -36,6 +36,7 @@
    "vars": {
       "ENVIRONMENT": "production",
       "ACCESS_COOKIE_NAME": "static_host_access",
-      "COOKIE_SECRET": "replace-with-wrangler-secret"
+      "COOKIE_SECRET": "replace-with-wrangler-secret",
+      "JWT_SECRET": "dev-secret-change-me-static-host"
    }
 }

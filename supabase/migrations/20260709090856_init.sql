@@ -2,18 +2,6 @@ CREATE SCHEMA IF NOT EXISTS auth;
 
 SET check_function_bodies = false;
 
-CREATE FUNCTION public.handle_new_user()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  insert into public.profiles (id, email) values (new.id, new.email);
-  return new;
-end;
-$function$;
-
-CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-
 CREATE TABLE public.analytics_daily (site_id uuid NOT NULL, day text NOT NULL, path text NOT NULL, status integer NOT NULL, country text DEFAULT 'unknown'::text NOT NULL, referrer_host text DEFAULT 'direct'::text NOT NULL, views integer DEFAULT 0 NOT NULL);
 
 ALTER TABLE public.analytics_daily ENABLE ROW LEVEL SECURITY;
@@ -71,3 +59,15 @@ CREATE POLICY "sites insert own" ON public.sites FOR INSERT TO authenticated WIT
 CREATE POLICY "sites read own" ON public.sites FOR SELECT TO authenticated USING ((auth.uid() = owner_id));
 
 CREATE POLICY "sites update own" ON public.sites FOR UPDATE TO authenticated USING ((auth.uid() = owner_id)) WITH CHECK ((auth.uid() = owner_id));
+
+CREATE FUNCTION public.handle_new_user()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+begin
+  insert into public.profiles (id, email) values (new.id, new.email);
+  return new;
+end;
+$function$;
+
+CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user();

@@ -1,6 +1,5 @@
 import {
   Activity,
-  CalendarClock,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
@@ -20,6 +19,7 @@ import { siteDisplayStatus } from "../../lib/site";
 import { AnalyticsPanel } from "../analytics/AnalyticsPanel";
 import { UploadBox } from "../upload/UploadBox";
 import { Metric } from "../ui/Metric";
+import { AccessSettingsFields } from "./AccessSettingsFields";
 
 export function SiteManage({
   site,
@@ -67,7 +67,10 @@ export function SiteManage({
     <section className="dashboardStack">
       <header className="siteHeader">
         <div>
-          <p className="eyebrow">Site settings</p>
+          <p className="eyebrow">
+            Site settings
+            {site.accessMode === "password" && <LockKeyhole size={14} aria-label="Password protected" className="inlineLock" />}
+          </p>
           <div className="siteTitleRow">
             <h1>{site.name}</h1>
             <span className={`statusPill ${status.kind}`}>{status.label}</span>
@@ -185,35 +188,12 @@ export function SiteManage({
                 setAccessEditing(false);
               }}
             >
-              <div className="segmented">
-                <label>
-                  <input type="radio" name="accessMode" value="public" defaultChecked={site.accessMode === "public"} /> Public
-                </label>
-                <label>
-                  <input type="radio" name="accessMode" value="password" defaultChecked={site.accessMode === "password"} /> Password
-                </label>
-              </div>
-              <label>
-                Password
-                <input name="password" type="password" placeholder="Required when password mode is selected" />
-              </label>
-              <label>
-                Active until
-                <input name="expiresAt" type="datetime-local" />
-              </label>
-              <label className="check">
-                <input name="disabled" type="checkbox" defaultChecked={Boolean(site.disabledAt)} /> Disable now
-              </label>
-              <div className="buttonRow">
-                <button disabled={busy} type="submit">
-                  <CalendarClock size={18} /> Save settings
-                </button>
-                {hasDeployment && (
-                  <button type="button" className="ghost" onClick={() => setAccessEditing(false)}>
-                    Cancel
-                  </button>
-                )}
-              </div>
+              <AccessSettingsFields
+                defaultAccessMode={site.accessMode}
+                defaultDisabled={Boolean(site.disabledAt)}
+                busy={busy}
+                onCancel={hasDeployment ? () => setAccessEditing(false) : undefined}
+              />
             </form>
           )}
         </section>

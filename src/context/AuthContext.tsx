@@ -1,49 +1,63 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { ensureProfile } from "../lib/ensure-profile";
 import { supabase } from "../lib/supabase";
-import type { SiteSummary } from "../shared/types";
 
 interface AuthContextValue {
   sessionEmail: string;
-  sites: SiteSummary[];
-  setSites: React.Dispatch<React.SetStateAction<SiteSummary[]>>;
-  loadSites: (email: string) => Promise<boolean>;
-  signIn: (email: string) => void;
+  userId: string;
+  authReady: boolean;
   signOut: () => void;
+  getAccessToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [sessionEmail, setSessionEmail] = useState(() => localStorage.getItem("static-host-owner") ?? "");
-  const [sites, setSites] = useState<SiteSummary[]>([]);
+  const [sessionEmail, setSessionEmail] = useState("");
+  const [userId, setUserId] = useState("");
+  const [authReady, setAuthReady] = useState(false);
 
-  const loadSites = useCallback(async (email: string) => {
-    const response = await fetch(`/api/sites?ownerEmail=${encodeURIComponent(email)}`);
-    if (!response.ok) return false;
-    const data = (await response.json()) as { sites: SiteSummary[] };
-    setSites(data.sites);
-    return true;
+  const getAccessToken = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ?? null;
+  }, []);
+
+  const syncSession = useCallback(async (session: { user: { id: string; email?: string | null } } | null) => {
+    setSessionEmail(session?.user.email ?? "");
+    setUserId(session?.user.id ?? "");
+    setAuthReady(true);
+    if (!session?.user.id || !session.user.email) return;
+
+    await ensureProfile(session.user.id, session.user.email);
   }, []);
 
   useEffect(() => {
-    if (!sessionEmail) setSites([]);
-  }, [sessionEmail]);
+    let cancelled = false;
 
-  const signIn = useCallback((email: string) => {
-    localStorage.setItem("static-host-owner", email);
-    setSessionEmail(email);
-  }, []);
+    void supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
+      void syncSession(data.session);
+    });
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      void syncSession(session);
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.subscription.unsubscribe();
+    };
+  }, [syncSession]);
 
   const signOut = useCallback(() => {
-    localStorage.removeItem("static-host-owner");
     void supabase.auth.signOut().catch(() => undefined);
     setSessionEmail("");
-    setSites([]);
+    setUserId("");
   }, []);
 
   const value = useMemo(
-    () => ({ sessionEmail, sites, setSites, loadSites, signIn, signOut }),
-    [sessionEmail, sites, loadSites, signIn, signOut],
+    () => ({ sessionEmail, userId, authReady, signOut, getAccessToken }),
+    [sessionEmail, userId, authReady, signOut, getAccessToken],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

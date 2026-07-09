@@ -21,6 +21,16 @@ export function base64ToBytes(value: string): Uint8Array {
   return bytes;
 }
 
+export function bytesToBase64Url(bytes: ArrayBuffer): string {
+  return bytesToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+export function base64UrlToBytes(value: string): Uint8Array {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padding = normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
+  return base64ToBytes(normalized + padding);
+}
+
 export async function sha256Hex(input: ArrayBuffer | string): Promise<string> {
   const data = typeof input === "string" ? new TextEncoder().encode(input) : input;
   const hash = await crypto.subtle.digest("SHA-256", data);
@@ -52,7 +62,7 @@ export async function verifyPassword(password: string, salt: string, expectedHas
 export async function signValue(secret: string, value: string): Promise<string> {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), SIGNING_ALGORITHM, false, ["sign"]);
   const signature = await crypto.subtle.sign(SIGNING_ALGORITHM, key, new TextEncoder().encode(value));
-  return `${value}.${bytesToBase64(signature)}`;
+  return `${value}.${bytesToBase64Url(signature)}`;
 }
 
 export async function verifySignedValue(secret: string, signed: string, expectedValue: string): Promise<boolean> {

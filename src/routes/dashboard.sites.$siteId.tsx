@@ -1,17 +1,20 @@
 import { Rocket } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { SiteManage } from "../components/dashboard/SiteManage";
 import { useAuth } from "../context/AuthContext";
 import { useNotice } from "../context/NoticeContext";
 import { useSiteDetail } from "../hooks/useSiteDetail";
+import { mapSite } from "../shared/mappers";
 import type { DeploymentSummary, SiteSummary } from "../shared/types";
+import { supabase } from "../lib/supabase";
+import { readAccessFormFields } from "../lib/access-form";
 import { isValidUploadFile } from "../lib/upload";
 
 export default function SiteDetailPage() {
   const params = useParams<{ siteId: string }>();
   const siteId = params.siteId ? decodeURIComponent(params.siteId) : undefined;
-  const { sites, setSites } = useAuth();
+  const { getAccessToken } = useAuth();
   const { setNotice, clearNotice } = useNotice();
   const [, navigate] = useLocation();
   const { detail, setDetail, loading, error } = useSiteDetail(siteId);
@@ -24,8 +27,7 @@ export default function SiteDetailPage() {
   const [showReplacementUpload, setShowReplacementUpload] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
-  const selectedSite = useMemo(() => (siteId ? (sites.find((site) => site.id === siteId) ?? null) : null), [siteId, sites]);
-  const visibleSite = detail?.site ?? selectedSite;
+  const visibleSite = detail?.site ?? null;
   const publicUrl = visibleSite ? `${window.location.origin}/s/${visibleSite.slug}/` : "";
   const hasDeployment = Boolean(detail?.deployment ?? visibleSite?.activeDeploymentId);
   const totalViews = detail?.analytics.reduce((sum, row) => sum + row.views, 0) ?? 0;
@@ -59,10 +61,15 @@ export default function SiteDetailPage() {
     setBusy(true);
     clearNotice();
     try {
-      const response = await fetch(`/api/sites/${site.id}/deploy`, { method: "POST", body: form });
+      const token = await getAccessToken();
+      if (!token) throw new Error("Sign in before deploying.");
+      const response = await fetch(`/api/sites/${site.id}/deploy`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
       const data = (await response.json()) as { site?: SiteSummary; deployment?: DeploymentSummary; publicUrl?: string; error?: string };
       if (!response.ok || !data.site || !data.deployment) throw new Error(data.error ?? "Deploy failed.");
-      setSites((current) => current.map((site) => (site.id === data.site!.id ? data.site! : site)));
       setDetail({ site: data.site, deployment: data.deployment, analytics: detail?.analytics ?? [] });
       setReplacementUpload(null);
       setShowReplacementUpload(false);
@@ -77,24 +84,21 @@ export default function SiteDetailPage() {
   async function updateAccess(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const accessMode = String(form.get("accessMode"));
     setBusy(true);
     clearNotice();
     try {
-      const response = await fetch(`/api/sites/${site.id}/access`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          accessMode,
-          password: form.get("password"),
-          expiresAt: form.get("expiresAt") ? new Date(String(form.get("expiresAt"))).toISOString() : null,
-          disabled: form.get("disabled") === "on",
-        }),
-      });
-      const data = (await response.json()) as { site?: SiteSummary; error?: string };
-      if (!response.ok || !data.site) throw new Error(data.error ?? "Could not update access.");
-      setSites((current) => current.map((site) => (site.id === data.site!.id ? data.site! : site)));
-      setDetail((current) => (current ? { ...current, site: data.site! } : current));
+      const accessFields = await readAccessFormFields(form);
+
+      const { data, error: updateError } = await supabase
+        .from("sites")
+        .update(accessFields)
+        .eq("id", site.id)
+        .select("*")
+        .single();
+      if (updateError || !data) throw new Error(updateError?.message ?? "Could not update access.");
+
+      const updatedSite = mapSite(data);
+      setDetail((current) => (current ? { ...current, site: updatedSite } : current));
       setNotice({ tone: "ok", text: "Access settings updated." });
     } catch (accessError) {
       setNotice({ tone: "bad", text: accessError instanceof Error ? accessError.message : "Could not update access." });
@@ -108,10 +112,8 @@ export default function SiteDetailPage() {
     setBusy(true);
     clearNotice();
     try {
-      const response = await fetch(`/api/sites/${site.id}`, { method: "DELETE" });
-      const data = (await response.json().catch(() => ({}))) as { error?: string };
-      if (!response.ok) throw new Error(data.error ?? "Could not delete site.");
-      setSites((current) => current.filter((item) => item.id !== site.id));
+      const { error: deleteError } = await supabase.from("sites").delete().eq("id", site.id);
+      if (deleteError) throw new Error(deleteError.message);
       navigate("/dashboard");
       setNotice({ tone: "ok", text: `${site.name} was deleted.` });
     } catch (deleteError) {

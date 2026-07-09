@@ -1,5 +1,5 @@
 import type { Env, WorkerContext } from "./env";
-import type { SiteAccessRecord } from "./db";
+import type { SiteAccessRecord } from "./lib/deploy";
 import { assetKey } from "./assets";
 
 const STATIC_WORKER_CODE = `

@@ -70,3 +70,9 @@ The end-to-end test signs up, creates a site, uploads an HTML file, opens the ge
 ## Stack
 
 Vite, React, Tailwind, Supabase Lite, Cloudflare Workers, Dynamic Workers, D1, and R2.
+
+## Todo
+
+- [ ] batch analytics writes
+- [ ] add rate limiting to both api and static serve
+- [ ] ensure proper caching for static serve

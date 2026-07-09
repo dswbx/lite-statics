@@ -57,6 +57,7 @@ alter table deployments enable row level security;
 alter table analytics_daily enable row level security;
 
 create policy "profiles read own" on profiles for select to authenticated using (auth.uid() = id);
+create policy "profiles insert own" on profiles for insert to authenticated with check (auth.uid() = id);
 create policy "profiles update own" on profiles for update to authenticated using (auth.uid() = id) with check (auth.uid() = id);
 
 create policy "sites read own" on sites for select to authenticated using (auth.uid() = owner_id);

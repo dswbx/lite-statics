@@ -37,9 +37,9 @@ test("uploads HTML through the dashboard and opens the hosted static site", asyn
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("heading", { name: "Deployments you have already added" })).toBeVisible();
 
-  await page.getByRole("button", { name: /add your first site/i }).click();
+  await page.getByLabel("Dashboard").getByRole("button", { name: /new site/i }).click();
   await expect(page).toHaveURL(/\/dashboard\/sites\/new$/);
-  await expect(page.getByRole("heading", { name: "Upload assets first." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Access and expiry" })).toBeVisible();
   await page.locator('input[name="file"]').setInputFiles(uploadPath);
   await expect(page.getByText(`${uploadPath.split("/").at(-1)} is ready.`)).toBeVisible();
   await expect(page.getByText("4 files found. Review the list, then publish.")).toBeVisible();
@@ -50,7 +50,7 @@ test("uploads HTML through the dashboard and opens the hosted static site", asyn
   await expect(page.getByLabel("Slug")).toHaveValue(slug);
   await page.getByRole("button", { name: /create site and upload/i }).click();
   await expect(page.getByRole("heading", { name: "E2E Static Site" })).toBeVisible();
-  await expect(page).toHaveURL(/\/dashboard\/sites\/site_[^/]+$/);
+  await expect(page).toHaveURL(/\/dashboard\/sites\/[0-9a-f-]{36}$/);
   const managementUrl = page.url();
   await expect(page.getByText("Live upload")).toBeVisible();
   await expect(page.getByText("4 assets")).toBeVisible();
