@@ -38,10 +38,10 @@ export default function LandingPage() {
                 <Moon size={18} strokeWidth={2} />
               )}
             </Button>
-            <Button variant="line" onClick={() => navigate("/auth")}>
+            <Button variant="line" onClick={() => navigate("/auth?mode=signin")}>
               Sign in
             </Button>
-            <Button variant="default" onClick={() => navigate("/auth")}>
+            <Button variant="default" onClick={() => navigate("/auth?mode=signup")}>
               Sign up
             </Button>
           </div>
@@ -62,13 +62,13 @@ export default function LandingPage() {
           <div className="mt-8 flex gap-3 max-stack:flex-col">
             <Button
               variant="default"
-              onClick={() => navigate(signedIn ? "/dashboard" : "/auth")}
+              onClick={() => navigate(signedIn ? "/dashboard" : "/auth?mode=signup")}
             >
               <ShieldCheck size={18} strokeWidth={2} />
               {signedIn ? "Open dashboard" : "Sign up to upload"}
             </Button>
             {!signedIn && (
-              <Button variant="outline" onClick={() => navigate("/auth")}>
+              <Button variant="outline" onClick={() => navigate("/auth?mode=signin")}>
                 Sign in
               </Button>
             )}
