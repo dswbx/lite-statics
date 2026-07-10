@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { NewSiteForm } from "../components/dashboard/NewSiteForm";
 import { useAuth } from "../context/AuthContext";
@@ -6,7 +6,9 @@ import { useNotice } from "../context/NoticeContext";
 import type { SiteSummary } from "../shared/types";
 import { supabase } from "../lib/supabase";
 import { readAccessFormFields } from "../lib/access-form";
-import { isValidUploadFile, previewUploadAssets, slugify, titleFromFile, uniqueSlug } from "../lib/upload";
+import { isSlugAvailable, isValidUploadFile, previewUploadAssets, slugify, slugifyInput, titleFromFile, uniqueSlug } from "../lib/upload";
+
+export type SlugStatus = "idle" | "checking" | "available" | "taken";
 
 export default function NewSitePage() {
   const { userId, getAccessToken } = useAuth();
@@ -18,7 +20,26 @@ export default function NewSitePage() {
   const [newSiteName, setNewSiteName] = useState("");
   const [newSiteSlug, setNewSiteSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
+  const [slugStatus, setSlugStatus] = useState<SlugStatus>("idle");
   const [dragActive, setDragActive] = useState(false);
+
+  useEffect(() => {
+    const slug = slugify(newSiteSlug);
+    if (!slug) {
+      setSlugStatus("idle");
+      return;
+    }
+    setSlugStatus("checking");
+    let cancelled = false;
+    const handle = setTimeout(async () => {
+      const available = await isSlugAvailable(slug);
+      if (!cancelled) setSlugStatus(available ? "available" : "taken");
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [newSiteSlug]);
 
   async function chooseNewSiteUpload(file: File | undefined) {
     if (!isValidUploadFile(file)) {
@@ -52,17 +73,30 @@ export default function NewSitePage() {
     }
     const name = newSiteName.trim() || titleFromFile(newSiteFile.name);
     const slug = slugify(newSiteSlug || name);
+    if (!slug) {
+      setNotice({ tone: "bad", text: "Enter a slug for your site." });
+      return;
+    }
     const form = new FormData(event.currentTarget);
     setBusy(true);
     clearNotice();
     try {
+      if (!(await isSlugAvailable(slug))) {
+        throw new Error(`The slug "${slug}" is already taken. Choose another.`);
+      }
       const accessFields = await readAccessFormFields(form);
       const { data: created, error: createError } = await supabase
         .from("sites")
         .insert({ owner_id: userId, name, slug, ...accessFields })
         .select("*")
         .single();
-      if (createError || !created) throw new Error(createError?.message ?? "Could not create site.");
+      if (createError || !created) {
+        const message = createError?.message ?? "";
+        if (createError?.code === "23505" || /unique|already exists|constraint/i.test(message)) {
+          throw new Error(`The slug "${slug}" is already taken. Choose another.`);
+        }
+        throw new Error(message || "Could not create site.");
+      }
 
       const token = await getAccessToken();
       if (!token) throw new Error("Sign in before deploying.");
@@ -88,6 +122,7 @@ export default function NewSitePage() {
       setNewSiteName("");
       setNewSiteSlug("");
       setSlugEdited(false);
+      setSlugStatus("idle");
       navigate(`/dashboard/sites/${encodeURIComponent(deployed.site.id)}`);
       setNotice({
         tone: "ok",
@@ -106,13 +141,14 @@ export default function NewSitePage() {
       assets={newSiteAssets}
       name={newSiteName}
       slug={newSiteSlug}
+      slugStatus={slugStatus}
       busy={busy}
       dragActive={dragActive}
       onChooseFile={chooseNewSiteUpload}
       onName={setNewSiteName}
       onSlug={(value) => {
         setSlugEdited(true);
-        setNewSiteSlug(slugify(value));
+        setNewSiteSlug(slugifyInput(value));
       }}
       onDrag={setDragActive}
       onSubmit={createAndDeploySite}

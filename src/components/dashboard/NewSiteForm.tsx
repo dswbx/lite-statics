@@ -2,6 +2,7 @@ import { Lock, Rocket } from "lucide-react";
 import { PreviewAssetList } from "../upload/PreviewAssetList";
 import { UploadBox } from "../upload/UploadBox";
 import { titleFromFile, type PreviewAsset } from "../../lib/upload";
+import type { SlugStatus } from "../../routes/dashboard.sites.new";
 import { AccessSettingsFields } from "./AccessSettingsFields";
 import { Eyebrow } from "../ui/eyebrow";
 import { Button } from "../ui/button";
@@ -14,6 +15,7 @@ export function NewSiteForm({
   assets,
   name,
   slug,
+  slugStatus,
   busy,
   dragActive,
   onChooseFile,
@@ -26,6 +28,7 @@ export function NewSiteForm({
   assets: PreviewAsset[];
   name: string;
   slug: string;
+  slugStatus: SlugStatus;
   busy: boolean;
   dragActive: boolean;
   onChooseFile: (file: File | undefined) => void;
@@ -71,7 +74,17 @@ export function NewSiteForm({
                   value={slug}
                   onChange={(event) => onSlug(event.currentTarget.value)}
                   placeholder="auto-generated"
+                  aria-invalid={slugStatus === "taken"}
                 />
+                {slug && slugStatus === "checking" && (
+                  <span className="font-mono text-[11px] text-muted">Checking availability…</span>
+                )}
+                {slug && slugStatus === "available" && (
+                  <span className="font-mono text-[11px] text-accent">Slug is available.</span>
+                )}
+                {slug && slugStatus === "taken" && (
+                  <span className="font-mono text-[11px] text-danger">That slug is already taken. Choose another.</span>
+                )}
               </div>
               <div className="rounded-[9px] border border-accent-soft bg-accent-soft px-3.5 py-2.5 font-mono text-[13px] text-accent">
                 → /s/{slug || "generated-slug"}/
@@ -87,7 +100,12 @@ export function NewSiteForm({
               <AccessSettingsFields showSubmit={false} />
             </CardContent>
           </Card>
-          <Button disabled={busy || !file} type="submit" variant="default" className="w-full">
+          <Button
+            disabled={busy || !file || slugStatus === "taken" || slugStatus === "checking"}
+            type="submit"
+            variant="default"
+            className="w-full"
+          >
             <Rocket size={16} strokeWidth={2} /> Create site & upload
           </Button>
         </div>

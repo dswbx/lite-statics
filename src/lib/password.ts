@@ -1,4 +1,6 @@
-const PASSWORD_ITERATIONS = 120_000;
+// Cloudflare Workers caps PBKDF2 at 100k iterations; keep both copies in sync
+// (see src/worker/crypto.ts) or password verification breaks.
+const PASSWORD_ITERATIONS = 100_000;
 
 function bytesToBase64(bytes: ArrayBuffer): string {
   const view = new Uint8Array(bytes);

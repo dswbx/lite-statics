@@ -1,4 +1,6 @@
-const PASSWORD_ITERATIONS = 120_000;
+// Cloudflare Workers caps PBKDF2 at 100k iterations; keep in sync with the
+// browser copy in src/lib/password.ts or password verification breaks.
+const PASSWORD_ITERATIONS = 100_000;
 const SIGNING_ALGORITHM = { name: "HMAC", hash: "SHA-256" } as const;
 
 export function bytesToBase64(bytes: ArrayBuffer): string {

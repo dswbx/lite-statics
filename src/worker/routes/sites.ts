@@ -5,6 +5,16 @@ import { createServiceClient, createUserClient, type AppEnv } from "../client";
 import { deleteSiteAssets, deployResponseBody, deploySite, getSiteBySlug } from "../lib/deploy";
 
 export default new Hono<AppEnv>()
+  .get("/slug-available", async (c) => {
+    const slug = (c.req.query("slug") ?? "").trim().toLowerCase();
+    if (!slug) return c.json({ available: false });
+    // RLS limits a user client to their own sites, so check with the service
+    // client to catch collisions across every owner (slugs are globally unique).
+    const serviceClient = await createServiceClient(c.get("appFetch"), c.env, c.executionCtx);
+    const { data, error } = await serviceClient.from("sites").select("id").eq("slug", slug).maybeSingle();
+    if (error) return c.json({ error: error.message }, 500);
+    return c.json({ available: !data });
+  })
   .post("/:slug/password", async (c) => {
     const slug = decodeURIComponent(c.req.param("slug"));
     const serviceClient = await createServiceClient(c.get("appFetch"), c.env, c.executionCtx);

@@ -54,6 +54,29 @@ export function uniqueSlug(value: string, existingSlugs: string[]): string {
   return `${base}-${crypto.randomUUID().slice(0, 8)}`;
 }
 
+export async function isSlugAvailable(slug: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/sites/slug-available?slug=${encodeURIComponent(slug)}`);
+    if (!response.ok) return true; // fail open; the DB unique constraint is the final guard
+    const data = (await response.json()) as { available?: boolean };
+    return data.available !== false;
+  } catch {
+    return true;
+  }
+}
+
+// Lenient variant for live typing: converts whitespace and other invalid chars
+// to "-" but keeps a trailing "-" so the user can type a separator mid-slug.
+// Full slugify() (which trims trailing dashes) still runs at submit.
+export function slugifyInput(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+/, "")
+    .slice(0, 48);
+}
+
 export function slugify(value: string): string {
   return value
     .trim()
