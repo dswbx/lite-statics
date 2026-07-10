@@ -73,11 +73,11 @@ test("uploads HTML through the dashboard and opens the hosted static site", asyn
   const [hostedPage] = await Promise.all([context.waitForEvent("page"), publicLink.click()]);
   await hostedPage.waitForLoadState("networkidle");
   await expect(hostedPage.getByRole("heading", { name: uploadedHeading })).toBeVisible();
-  await expect(hostedPage.getByText("Static Harbor")).toHaveCount(0);
+  await expect(hostedPage.getByText("Statics")).toHaveCount(0);
 
   await page.goto(`/s/${slug}/`);
   await expect(page.getByRole("heading", { name: uploadedHeading })).toBeVisible();
-  await expect(page.getByText("Static Harbor")).toHaveCount(0);
+  await expect(page.getByText("Statics")).toHaveCount(0);
 
   await page.goto(managementUrl);
   await page.reload();

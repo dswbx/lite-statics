@@ -16,7 +16,7 @@ export default function LandingPage() {
         <Eyebrow>Static hosting for small sites</Eyebrow>
         <h1>Upload HTML. Share a public URL.</h1>
         <p className="max-w-[780px] text-[1.08rem] leading-relaxed text-lede">
-          Static Harbor hosts one-page HTML files or ZIP static sites on Cloudflare. You need an account before uploading so your deployments,
+          Statics hosts one-page HTML files or ZIP static sites on Cloudflare. You need an account before uploading so your deployments,
           passwords, expiry rules, and analytics stay attached to you.
         </p>
         <div className="flex flex-wrap items-center gap-3">

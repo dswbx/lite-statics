@@ -40,7 +40,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                variant="brand"
                onClick={() => navigate("/dashboard")}
             >
-               Static Harbor
+               Statics
             </Button>
             <nav className="flex flex-wrap items-center justify-center gap-3 max-stack:justify-stretch" aria-label="Dashboard">
                <Button

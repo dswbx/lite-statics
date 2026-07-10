@@ -6,16 +6,16 @@ import { defineConfig } from "vite";
 const isE2e = process.env.E2E === "true";
 
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    cloudflare({
-      persistState: isE2e ? { path: ".wrangler-e2e/state" } : true,
-    }),
-  ],
-  server: {
-    watch: {
-      ignored: ["**/.wrangler/**", "**/.wrangler-e2e/**"],
-    },
-  },
+   plugins: [
+      react(),
+      tailwindcss(),
+      cloudflare({
+         persistState: isE2e ? { path: ".wrangler-e2e/state" } : true,
+      }),
+   ],
+   server: {
+      watch: {
+         ignored: ["**/.wrangler/**", "**/.wrangler-e2e/**"],
+      },
+   },
 });

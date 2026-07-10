@@ -4,7 +4,7 @@
    "version": "0.0.0",
    "type": "module",
    "scripts": {
-      "dev": "bun run db:migration:apply:local && vite --host 0.0.0.0",
+      "dev": "bun run db:migration:apply:local && vite",
       "dev:e2e": "rm -rf .wrangler-e2e/state && E2E=true bun run db:migration:apply:e2e && E2E=true vite --host 127.0.0.1 --port 5180 --strictPort",
       "worker:dev": "wrangler dev --port 8787",
       "build": "tsc -b && vite build",
@@ -34,6 +34,7 @@
       "react-dom": "^19.0.0",
       "react-simple-maps": "^3.0.0",
       "recharts": "^3.9.2",
+      "tailwind-merge": "^3.6.0",
       "topojson-client": "^3.1.0",
       "world-atlas": "^2.0.2",
       "wouter": "^3.10.0"

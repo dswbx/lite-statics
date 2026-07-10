@@ -24,7 +24,7 @@ export function AuthForm({
   return (
     <>
       <Link href="/" className="inline-flex min-h-[42px] items-center justify-center gap-2 bg-transparent px-0 font-serif text-[1.35rem] font-black text-ink no-underline">
-        Static Harbor
+        Statics
       </Link>
       <Panel as="form" onSubmit={onSubmit} className="w-full max-w-[520px] p-[26px] [&_h1]:text-[clamp(2rem,5vw,3.7rem)]">
         <Eyebrow>{mode === "signup" ? "Create account" : "Welcome back"}</Eyebrow>
