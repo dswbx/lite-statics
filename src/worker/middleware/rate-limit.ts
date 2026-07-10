@@ -1,17 +1,6 @@
 import type { Context, Next } from "hono";
 import type { AppEnv } from "../client";
-import type { Env } from "../env";
-import { RATE_LIMIT_POLICIES, rateLimitResponseHeaders } from "./rate-limit-policies";
-
-export type RateLimitRouteClass = "auth" | "api" | "rest" | "static" | "default";
-
-export function routeClassFromPathname(pathname: string): RateLimitRouteClass {
-  if (pathname.startsWith("/auth/v1")) return "auth";
-  if (pathname.startsWith("/api/")) return "api";
-  if (pathname.startsWith("/rest/v1")) return "rest";
-  if (pathname.startsWith("/s/")) return "static";
-  return "default";
-}
+import { RATE_LIMIT_POLICY, rateLimitResponseHeaders } from "./rate-limit-policies";
 
 export function rateLimitIdentifier(request: Request): string {
   const authorization = request.headers.get("Authorization");
@@ -20,10 +9,6 @@ export function rateLimitIdentifier(request: Request): string {
     if (subject) return subject;
   }
   return request.headers.get("cf-connecting-ip") ?? "unknown";
-}
-
-export function rateLimitKey(routeClass: RateLimitRouteClass, identifier: string): string {
-  return `${routeClass}:${identifier}`;
 }
 
 function decodeJwtSubject(token: string): string | null {
@@ -37,24 +22,9 @@ function decodeJwtSubject(token: string): string | null {
   }
 }
 
-function rateLimiterForRoute(env: Env, routeClass: RateLimitRouteClass): RateLimit | undefined {
-  switch (routeClass) {
-    case "auth":
-      return env.RATE_LIMIT_AUTH;
-    case "api":
-      return env.RATE_LIMIT_API;
-    case "rest":
-      return env.RATE_LIMIT_REST;
-    case "static":
-      return env.RATE_LIMIT_STATIC;
-    default:
-      return env.RATE_LIMIT_DEFAULT;
-  }
-}
-
-function withRateLimitHeaders(response: Response, routeClass: RateLimitRouteClass, success: boolean): Response {
+function withRateLimitHeaders(response: Response, success: boolean): Response {
   const headers = new Headers(response.headers);
-  for (const [name, value] of Object.entries(rateLimitResponseHeaders(RATE_LIMIT_POLICIES[routeClass], { success }))) {
+  for (const [name, value] of Object.entries(rateLimitResponseHeaders(RATE_LIMIT_POLICY, { success }))) {
     headers.set(name, value);
   }
   return new Response(response.body, {
@@ -65,28 +35,26 @@ function withRateLimitHeaders(response: Response, routeClass: RateLimitRouteClas
 }
 
 export async function rateLimit(c: Context<AppEnv>, next: Next): Promise<Response | void> {
-  const pathname = new URL(c.req.raw.url).pathname;
-  const routeClass = routeClassFromPathname(pathname);
-  const limiter = rateLimiterForRoute(c.env, routeClass);
+  const limiter = c.env.RATE_LIMIT;
   if (!limiter) {
     await next();
     return;
   }
 
-  const key = rateLimitKey(routeClass, rateLimitIdentifier(c.req.raw));
+  const key = rateLimitIdentifier(c.req.raw);
   const outcome = await limiter.limit({ key });
   if (!outcome.success) {
     return Response.json(
       { error: "Too many requests" },
       {
         status: 429,
-        headers: rateLimitResponseHeaders(RATE_LIMIT_POLICIES[routeClass], outcome),
+        headers: rateLimitResponseHeaders(RATE_LIMIT_POLICY, outcome),
       },
     );
   }
 
   await next();
   if (c.res) {
-    c.res = withRateLimitHeaders(c.res, routeClass, true);
+    c.res = withRateLimitHeaders(c.res, true);
   }
 }

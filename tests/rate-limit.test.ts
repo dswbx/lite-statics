@@ -1,12 +1,7 @@
 import { Hono } from "hono";
 import { describe, expect, it } from "vitest";
 import type { AppEnv } from "../src/worker/client";
-import {
-  rateLimit,
-  rateLimitIdentifier,
-  rateLimitKey,
-  routeClassFromPathname,
-} from "../src/worker/middleware/rate-limit";
+import { rateLimit, rateLimitIdentifier } from "../src/worker/middleware/rate-limit";
 import { rateLimitResponseHeaders } from "../src/worker/middleware/rate-limit-policies";
 import type { Env } from "../src/worker/env";
 
@@ -32,14 +27,6 @@ describe("rate limit helpers", () => {
     });
   });
 
-  it("maps pathnames to route classes", () => {
-    expect(routeClassFromPathname("/auth/v1/token")).toBe("auth");
-    expect(routeClassFromPathname("/api/sites/demo/password")).toBe("api");
-    expect(routeClassFromPathname("/rest/v1/sites")).toBe("rest");
-    expect(routeClassFromPathname("/s/demo/")).toBe("static");
-    expect(routeClassFromPathname("/dashboard")).toBe("default");
-  });
-
   it("prefers jwt subject over ip for the identifier", () => {
     const token = createJwt({ sub: "user-123" });
     const request = new Request("https://example.com/rest/v1/sites", {
@@ -50,7 +37,6 @@ describe("rate limit helpers", () => {
     });
 
     expect(rateLimitIdentifier(request)).toBe("user-123");
-    expect(rateLimitKey("rest", rateLimitIdentifier(request))).toBe("rest:user-123");
   });
 
   it("falls back to cf-connecting-ip when no jwt subject is present", () => {
@@ -69,7 +55,7 @@ describe("rateLimit middleware", () => {
     app.get("/api/sites/demo", (c) => c.text("ok"));
 
     const env = {
-      RATE_LIMIT_API: {
+      RATE_LIMIT: {
         limit: async () => ({ success: false }),
       },
     } as unknown as Env;
@@ -90,7 +76,7 @@ describe("rateLimit middleware", () => {
     app.get("/api/sites/demo", (c) => c.text("ok"));
 
     const env = {
-      RATE_LIMIT_API: {
+      RATE_LIMIT: {
         limit: async () => ({ success: true }),
       },
     } as unknown as Env;

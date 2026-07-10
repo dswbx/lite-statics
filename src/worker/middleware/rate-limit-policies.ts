@@ -1,18 +1,10 @@
-import type { RateLimitRouteClass } from "./rate-limit";
-
 export type RateLimitPolicy = {
   limit: number;
   period: number;
 };
 
 // keep in sync with wrangler.jsonc ratelimits.simple settings
-export const RATE_LIMIT_POLICIES: Record<RateLimitRouteClass, RateLimitPolicy> = {
-  auth: { limit: 30, period: 60 },
-  api: { limit: 60, period: 60 },
-  rest: { limit: 120, period: 60 },
-  static: { limit: 600, period: 60 },
-  default: { limit: 120, period: 60 },
-};
+export const RATE_LIMIT_POLICY: RateLimitPolicy = { limit: 60, period: 60 };
 
 export function rateLimitResponseHeaders(
   policy: RateLimitPolicy,

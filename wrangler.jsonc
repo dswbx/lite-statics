@@ -1,85 +1,56 @@
 {
-	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "static-host",
-	"main": "src/worker/index.ts",
-	"compatibility_date": "2026-07-08",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"observability": {
-		"enabled": true,
-		"head_sampling_rate": 1
-	},
-	"assets": {
-		"binding": "DASHBOARD",
-		"directory": "./dist",
-		"not_found_handling": "single-page-application",
-		"run_worker_first": [
-			"/api/*",
-			"/s/*",
-			"/auth/v1/*",
-			"/rest/v1/*"
-		]
-	},
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "static-host-db",
-			"migrations_dir": ".wrangler/migrations",
-			"database_id": "0d14797c-c2af-4b73-a10b-c974617818c6"
-		}
-	],
-	"r2_buckets": [
-		{
-			"binding": "ASSET_BUCKET",
-			"bucket_name": "static-host-assets"
-		}
-	],
-	"queues": {
-		"producers": [
-			{
-				"binding": "VIEW_TRACKING_QUEUE",
-				"queue": "static-host-view-tracking"
-			}
-		],
-		"consumers": [
-			{
-				"queue": "static-host-view-tracking",
-				"max_batch_size": 100,
-				"max_batch_timeout": 60
-			}
-		]
-	},
-	"ratelimits": [
-		{
-			"name": "RATE_LIMIT_AUTH",
-			"namespace_id": "1001",
-			"simple": { "limit": 30, "period": 60 }
-		},
-		{
-			"name": "RATE_LIMIT_API",
-			"namespace_id": "1002",
-			"simple": { "limit": 60, "period": 60 }
-		},
-		{
-			"name": "RATE_LIMIT_REST",
-			"namespace_id": "1003",
-			"simple": { "limit": 120, "period": 60 }
-		},
-		{
-			"name": "RATE_LIMIT_STATIC",
-			"namespace_id": "1004",
-			"simple": { "limit": 600, "period": 60 }
-		},
-		{
-			"name": "RATE_LIMIT_DEFAULT",
-			"namespace_id": "1005",
-			"simple": { "limit": 120, "period": 60 }
-		}
-	],
-	"vars": {
-		"ACCESS_COOKIE_NAME": "static_host_access",
-		"COOKIE_SECRET": "replace-with-wrangler-secret",
-		"JWT_SECRET": "dev-secret-change-me-static-host"
-	}
+   "$schema": "./node_modules/wrangler/config-schema.json",
+   "name": "static-host",
+   "main": "src/worker/index.ts",
+   "compatibility_date": "2026-07-08",
+   "compatibility_flags": ["nodejs_compat"],
+   "observability": {
+      "enabled": true,
+      "head_sampling_rate": 1
+   },
+   "assets": {
+      "binding": "DASHBOARD",
+      "directory": "./dist",
+      "not_found_handling": "single-page-application",
+      "run_worker_first": ["/api/*", "/s/*", "/auth/v1/*", "/rest/v1/*"]
+   },
+   "d1_databases": [
+      {
+         "binding": "DB",
+         "database_name": "static-host-db",
+         "migrations_dir": ".wrangler/migrations",
+         "database_id": "0d14797c-c2af-4b73-a10b-c974617818c6"
+      }
+   ],
+   "r2_buckets": [
+      {
+         "binding": "ASSET_BUCKET",
+         "bucket_name": "static-host-assets"
+      }
+   ],
+   "queues": {
+      "producers": [
+         {
+            "binding": "VIEW_TRACKING_QUEUE",
+            "queue": "static-host-view-tracking"
+         }
+      ],
+      "consumers": [
+         {
+            "queue": "static-host-view-tracking",
+            "max_batch_size": 100,
+            "max_batch_timeout": 60
+         }
+      ]
+   },
+   "ratelimits": [
+      {
+         "name": "RATE_LIMIT",
+         "namespace_id": "1001",
+         "simple": { "limit": 60, "period": 60 }
+      }
+   ],
+   "vars": {
+      "ACCESS_COOKIE_NAME": "static_host_access"
+   }
 }
