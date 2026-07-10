@@ -1,5 +1,9 @@
 import JSZip from "jszip";
 
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const MAX_UPLOAD_LABEL = "10 MB";
+export const UPLOAD_TOO_LARGE_MESSAGE = `Upload is larger than the ${MAX_UPLOAD_LABEL} limit. Choose a smaller file.`;
+
 export type PreviewAsset = { pathname: string; size: number };
 
 export function titleFromFile(fileName: string): string {
@@ -9,6 +13,7 @@ export function titleFromFile(fileName: string): string {
 }
 
 export async function previewUploadAssets(file: File): Promise<PreviewAsset[]> {
+  if (file.size > MAX_UPLOAD_BYTES) throw new Error(UPLOAD_TOO_LARGE_MESSAGE);
   const lowerName = file.name.toLowerCase();
   if (lowerName.endsWith(".html") || lowerName.endsWith(".htm")) {
     return [{ pathname: "/index.html", size: file.size }];

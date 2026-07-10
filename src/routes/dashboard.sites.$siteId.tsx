@@ -9,7 +9,7 @@ import { mapSite } from "../shared/mappers";
 import type { SiteSummary } from "../shared/types";
 import { supabase } from "../lib/supabase";
 import { readAccessFormFields } from "../lib/access-form";
-import { isValidUploadFile } from "../lib/upload";
+import { isValidUploadFile, MAX_UPLOAD_BYTES, UPLOAD_TOO_LARGE_MESSAGE } from "../lib/upload";
 
 export default function SiteDetailPage() {
   const params = useParams<{ siteId: string }>();
@@ -49,6 +49,10 @@ export default function SiteDetailPage() {
   function chooseReplacementUpload(file: File | undefined) {
     if (!isValidUploadFile(file)) {
       if (file) setNotice({ tone: "bad", text: "Use one HTML file or one ZIP archive." });
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setNotice({ tone: "bad", text: UPLOAD_TOO_LARGE_MESSAGE });
       return;
     }
     setReplacementUpload(file);

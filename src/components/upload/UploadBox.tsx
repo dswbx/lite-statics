@@ -2,6 +2,7 @@ import { Upload } from "lucide-react";
 import { useRef } from "react";
 import { cn } from "../../lib/cn";
 import { formatBytes } from "../../lib/format";
+import { MAX_UPLOAD_LABEL } from "../../lib/upload";
 import { Button } from "../ui/button";
 
 export function UploadBox({
@@ -42,7 +43,7 @@ export function UploadBox({
       <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
         Choose file
       </Button>
-      <span className="font-mono text-[11px] text-muted">index.html required in ZIP · max 25 MB</span>
+      <span className="font-mono text-[11px] text-muted">index.html required in ZIP · max {MAX_UPLOAD_LABEL}</span>
       {file && (
         <div className="flex w-full max-w-[360px] items-center justify-between gap-3 rounded-[10px] border border-line bg-surface2 px-3.5 py-2.5 text-left">
           <span className="truncate font-mono text-[13px]">{file.name}</span>

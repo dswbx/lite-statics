@@ -38,7 +38,7 @@ export interface NormalizedUpload {
 
 export async function normalizeUpload(file: File): Promise<NormalizedUpload> {
   if (file.size > MAX_UPLOAD_BYTES) {
-    throw new Error("Upload is larger than the 10 MB MVP limit.");
+    throw new Error("Upload is larger than the 10 MB limit.");
   }
 
   const lowerName = file.name.toLowerCase();
@@ -93,7 +93,7 @@ async function normalizeZip(bytes: ArrayBuffer): Promise<NormalizedUpload> {
 async function buildNormalized(assets: NormalizedAsset[]): Promise<NormalizedUpload> {
   const totalBytes = assets.reduce((sum, asset) => sum + asset.bytes.byteLength, 0);
   if (totalBytes > MAX_UPLOAD_BYTES) {
-    throw new Error("Expanded upload is larger than the 10 MB MVP limit.");
+    throw new Error("Expanded upload is larger than the 10 MB limit.");
   }
 
   const assetMap: Record<string, ArrayBuffer> = {};
