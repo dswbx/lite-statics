@@ -60,3 +60,11 @@ create policy "sites delete own" on sites for delete to authenticated using (aut
 create policy "analytics read own" on analytics_daily for select to authenticated using (
   site_id in (select id from sites where owner_id = auth.uid())
 );
+
+-- supalite's SQLite backend does not grant service_role BYPASSRLS the way
+-- Postgres does. The worker uses the service client for privileged, non-owner
+-- operations (public/password serving, deploy, delete, analytics writes), so
+-- grant service_role explicit full access to mirror BYPASSRLS.
+create policy "profiles service" on profiles for all to service_role using (true) with check (true);
+create policy "sites service" on sites for all to service_role using (true) with check (true);
+create policy "analytics service" on analytics_daily for all to service_role using (true) with check (true);

@@ -1,0 +1,177 @@
+{
+  "rls": {
+    "tables": [
+      "profiles",
+      "sites",
+      "analytics_daily"
+    ],
+    "policies": [
+      {
+        "name": "profiles read own",
+        "table": "profiles",
+        "command": "SELECT",
+        "permissive": true,
+        "roles": [
+          "authenticated"
+        ],
+        "using": {
+          "id": {
+            "$eq": "{{auth.uid}}"
+          }
+        }
+      },
+      {
+        "name": "profiles insert own",
+        "table": "profiles",
+        "command": "INSERT",
+        "permissive": true,
+        "roles": [
+          "authenticated"
+        ],
+        "withCheck": {
+          "id": {
+            "$eq": "{{auth.uid}}"
+          }
+        }
+      },
+      {
+        "name": "profiles update own",
+        "table": "profiles",
+        "command": "UPDATE",
+        "permissive": true,
+        "roles": [
+          "authenticated"
+        ],
+        "using": {
+          "id": {
+            "$eq": "{{auth.uid}}"
+          }
+        },
+        "withCheck": {
+          "id": {
+            "$eq": "{{auth.uid}}"
+          }
+        }
+      },
+      {
+        "name": "sites read own",
+        "table": "sites",
+        "command": "SELECT",
+        "permissive": true,
+        "roles": [
+          "authenticated"
+        ],
+        "using": {
+          "owner_id": {
+            "$eq": "{{auth.uid}}"
+          }
+        }
+      },
+      {
+        "name": "sites insert own",
+        "table": "sites",
+        "command": "INSERT",
+        "permissive": true,
+        "roles": [
+          "authenticated"
+        ],
+        "withCheck": {
+          "owner_id": {
+            "$eq": "{{auth.uid}}"
+          }
+        }
+      },
+      {
+        "name": "sites update own",
+        "table": "sites",
+        "command": "UPDATE",
+        "permissive": true,
+        "roles": [
+          "authenticated"
+        ],
+        "using": {
+          "owner_id": {
+            "$eq": "{{auth.uid}}"
+          }
+        },
+        "withCheck": {
+          "owner_id": {
+            "$eq": "{{auth.uid}}"
+          }
+        }
+      },
+      {
+        "name": "sites delete own",
+        "table": "sites",
+        "command": "DELETE",
+        "permissive": true,
+        "roles": [
+          "authenticated"
+        ],
+        "using": {
+          "owner_id": {
+            "$eq": "{{auth.uid}}"
+          }
+        }
+      },
+      {
+        "name": "analytics read own",
+        "table": "analytics_daily",
+        "command": "SELECT",
+        "permissive": true,
+        "roles": [
+          "authenticated"
+        ],
+        "using": {
+          "site_id": {
+            "$in": {
+              "type": "query",
+              "from": "sites",
+              "select": [
+                "id"
+              ],
+              "where": {
+                "owner_id": {
+                  "$eq": "{{auth.uid}}"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "profiles service",
+        "table": "profiles",
+        "command": "ALL",
+        "permissive": true,
+        "roles": [
+          "service_role"
+        ],
+        "using": {},
+        "withCheck": {}
+      },
+      {
+        "name": "sites service",
+        "table": "sites",
+        "command": "ALL",
+        "permissive": true,
+        "roles": [
+          "service_role"
+        ],
+        "using": {},
+        "withCheck": {}
+      },
+      {
+        "name": "analytics service",
+        "table": "analytics_daily",
+        "command": "ALL",
+        "permissive": true,
+        "roles": [
+          "service_role"
+        ],
+        "using": {},
+        "withCheck": {}
+      }
+    ]
+  }
+}

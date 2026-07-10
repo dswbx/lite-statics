@@ -35,15 +35,10 @@ describe("profiles integration", () => {
     const session = await signUp();
     const slug = `missing-profile-${crypto.randomUUID().slice(0, 8)}`;
 
-    const deleteProfileResponse = await server.fetch("http://example.com/rest/v1/profiles", {
-      method: "DELETE",
-      headers: {
-        apikey,
-        authorization: `Bearer ${session.access_token}`,
-        prefer: "return=minimal",
-      },
-    });
-    expect(deleteProfileResponse.status).toBe(204);
+    // Simulate a missing profile row directly in the DB. RLS has no user-facing
+    // delete policy on profiles (by design), so this cannot go through REST.
+    const env = await server.getWorker().getEnv();
+    await env.DB.prepare("DELETE FROM profiles WHERE id = ?").bind(session.user.id).run();
 
     const recreateProfileResponse = await server.fetch("http://example.com/rest/v1/profiles", {
       method: "POST",
