@@ -35,7 +35,7 @@ test("uploads HTML through the dashboard and opens the hosted static site", asyn
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: /create account/i }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByRole("heading", { name: "Deployments you have already added" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Deployments" })).toBeVisible();
 
   await page.getByLabel("Dashboard").getByRole("button", { name: /new site/i }).click();
   await expect(page).toHaveURL(/\/dashboard\/sites\/new$/);
@@ -87,13 +87,13 @@ test("uploads HTML through the dashboard and opens the hosted static site", asyn
   await page.getByRole("button", { name: /edit access settings/i }).click();
   await page.getByLabel("Disable now").check();
   await page.getByRole("button", { name: /save settings/i }).click();
-  await expect(page.locator(".siteTitleRow .statusPill")).toHaveText("Disabled");
-  await expect(page.getByText("This site is disabled.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "E2E Static Site" }).locator("+ *")).toHaveText("Disabled");
+  await expect(page.getByText(/This site is disabled/)).toBeVisible();
   await expect(page.getByRole("link", { name: /open site/i })).toHaveAttribute("aria-disabled", "true");
 
   await page.getByRole("button", { name: "Sites" }).click();
   const disabledCard = page.getByRole("button", { name: /E2E Static Site/ });
-  await expect(disabledCard.locator(".statusPill")).toHaveText("Disabled");
+  await expect(disabledCard.getByText("Disabled", { exact: true })).toBeVisible();
   await expect(disabledCard).toContainText("Public, disabled");
 
   await page.getByLabel("Dashboard").getByRole("button", { name: "New site" }).click();

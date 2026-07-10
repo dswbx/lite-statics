@@ -75,4 +75,26 @@ describe("auth integration", () => {
     const body = (await response.json()) as { error_code: string };
     expect(body.error_code).toBe("invalid_credentials");
   });
+
+  it("rejects getUser when the auth user row was deleted", async () => {
+    const email = `deleted-${crypto.randomUUID()}@example.com`;
+    const signUpResponse = await signUp(email);
+    expect(signUpResponse.status).toBe(200);
+    const session = (await signUpResponse.json()) as {
+      access_token: string;
+      user: { id: string; email: string };
+    };
+
+    const env = await server.getWorker().getEnv();
+    await env.DB.prepare('DELETE FROM "auth.users" WHERE id = ?').bind(session.user.id).run();
+
+    const response = await server.fetch("http://example.com/auth/v1/user", {
+      headers: {
+        apikey,
+        authorization: `Bearer ${session.access_token}`,
+      },
+    });
+
+    expect(response.status).not.toBe(200);
+  });
 });

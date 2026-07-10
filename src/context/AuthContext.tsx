@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { resolveAuthSession } from "../lib/resolve-auth-session";
 import { supabase } from "../lib/supabase";
 
 interface AuthContextValue {
@@ -16,19 +17,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState("");
   const [authReady, setAuthReady] = useState(false);
 
-  const getAccessToken = useCallback(async () => {
-    const { data } = await supabase.auth.getSession();
-    return data.session?.access_token ?? null;
-  }, []);
-
   const syncSession = useCallback((session: { user: { id: string; email?: string | null } } | null) => {
     setSessionEmail(session?.user.email ?? "");
     setUserId(session?.user.id ?? "");
     setAuthReady(true);
   }, []);
 
+  const getAccessToken = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    const resolved = await resolveAuthSession(data.session, () => supabase.auth.getUser());
+    if (!resolved) {
+      if (data.session) {
+        await supabase.auth.signOut();
+        syncSession(null);
+      }
+      return null;
+    }
+    return resolved.access_token;
+  }, [syncSession]);
+
   useEffect(() => {
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "INITIAL_SESSION") {
+        const resolved = await resolveAuthSession(session, () => supabase.auth.getUser());
+        if (!resolved && session) {
+          await supabase.auth.signOut();
+        }
+        syncSession(resolved);
+        return;
+      }
       syncSession(session);
     });
 

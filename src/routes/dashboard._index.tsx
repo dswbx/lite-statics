@@ -13,7 +13,7 @@ export default function DashboardHomePage() {
 
   if (loading) {
     return (
-      <section className="emptyState">
+      <section className="grid min-h-[340px] place-items-center content-center gap-3 border-2 border-ink bg-surface p-7 text-center shadow-brutal">
         <h2>Loading sites...</h2>
       </section>
     );

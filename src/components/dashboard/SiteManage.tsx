@@ -20,6 +20,11 @@ import { AnalyticsPanel } from "../analytics/AnalyticsPanel";
 import { UploadBox } from "../upload/UploadBox";
 import { Metric } from "../ui/Metric";
 import { AccessSettingsFields } from "./AccessSettingsFields";
+import { Eyebrow } from "../ui/Eyebrow";
+import { StatusPill } from "../ui/StatusPill";
+import { PrimaryCta } from "../ui/PrimaryCta";
+import { Button } from "../ui/Button";
+import { Panel } from "../ui/Panel";
 
 export function SiteManage({
   site,
@@ -61,120 +66,138 @@ export function SiteManage({
   const isDisabled = status.kind === "disabled";
 
   return (
-    <section className="dashboardStack">
-      <header className="siteHeader">
+    <section className="grid gap-6 pt-[26px]">
+      <header className="flex items-center justify-between gap-[18px] border-2 border-ink bg-surface p-5 shadow-brutal max-stack:flex-col max-stack:items-stretch">
         <div>
-          <p className="eyebrow">
+          <Eyebrow>
             Site settings
-            {site.accessMode === "password" && <LockKeyhole size={14} aria-label="Password protected" className="inlineLock" />}
-          </p>
-          <div className="siteTitleRow">
-            <h1>{site.name}</h1>
-            <span className={`statusPill ${status.kind}`}>{status.label}</span>
+            {site.accessMode === "password" && (
+              <LockKeyhole size={14} aria-label="Password protected" className="ml-1.5 inline-block align-[-2px]" />
+            )}
+          </Eyebrow>
+          <div className="mb-1 flex flex-wrap items-center gap-2.5">
+            <h1 className="mb-0 text-[clamp(2rem,4.5vw,4.2rem)]">{site.name}</h1>
+            <StatusPill kind={status.kind}>{status.label}</StatusPill>
           </div>
-          {isDisabled && <p className="disabledHint">This site is disabled. The public URL shows an inactive page until access is re-enabled.</p>}
+          {isDisabled && (
+            <p className="mb-2.5 max-w-[620px] font-[850] text-danger-hint">
+              This site is disabled. The public URL shows an inactive page until access is re-enabled.
+            </p>
+          )}
           {hasUpload ? (
             <a href={publicUrl} target="_blank" rel="noreferrer">
               {publicUrl}
             </a>
           ) : (
-            <span className="pendingLink">No public upload yet.</span>
+            <span className="font-[850] text-muted">No public upload yet.</span>
           )}
         </div>
-        <div className="siteActions">
-          <a className={`primaryCta ${!hasUpload || isDisabled ? "disabled" : ""}`} href={hasUpload ? publicUrl : undefined} target="_blank" rel="noreferrer" aria-disabled={!hasUpload || isDisabled}>
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          <PrimaryCta disabled={!hasUpload || isDisabled} href={hasUpload ? publicUrl : undefined} target="_blank" rel="noreferrer">
             <ExternalLink size={18} /> Open site
-          </a>
-          <button type="button" className="copyIcon" disabled={!hasUpload || isDisabled} onClick={() => void navigator.clipboard.writeText(publicUrl)} aria-label="Copy public link">
+          </PrimaryCta>
+          <Button
+            type="button"
+            variant="copy"
+            disabled={!hasUpload || isDisabled}
+            onClick={() => void navigator.clipboard.writeText(publicUrl)}
+            aria-label="Copy public link"
+          >
             <Copy size={18} />
-          </button>
+          </Button>
         </div>
       </header>
 
-      <div className="summaryGrid">
+      <div className="grid grid-cols-3 max-stack:grid-cols-1">
         <Metric icon={<FileText />} label="Current upload" value={hasUpload ? `${site.assetCount} files` : "None"} />
         <Metric icon={<FileArchive />} label="Size" value={hasUpload && site.totalBytes != null ? formatBytes(site.totalBytes) : "-"} />
         <Metric icon={<Activity />} label="Views" value={String(totalViews)} />
       </div>
 
-      <div className="gridTwo">
-        <section className="panel strong">
+      <div className="grid grid-cols-2 gap-[22px] max-stack:grid-cols-1">
+        <Panel tone="strong">
           <h3>
             <CheckCircle2 size={20} /> Uploaded state
           </h3>
           {hasUpload ? (
-            <div className="uploadState">
+            <div className="mb-[18px] grid gap-2 border-2 border-ink bg-sky-soft p-3.5">
               <strong>Live upload</strong>
               <span>
                 {site.assetCount} assets, {site.totalBytes != null ? formatBytes(site.totalBytes) : "-"}
               </span>
               <span>Uploaded {site.deployedAt ? formatDate(site.deployedAt) : "-"}</span>
-              <ul className="assetList" aria-label="Uploaded assets">
+              <ul className="m-2 mt-0 grid list-none gap-2 p-0" aria-label="Uploaded assets">
                 {shownAssets.map((asset) => (
-                  <li key={asset.pathname}>
-                    <span>{asset.pathname}</span>
-                    <small>
+                  <li key={asset.pathname} className="grid gap-0.5 border border-border-muted bg-cream p-2.5">
+                    <span className="font-[850] [overflow-wrap:anywhere]">{asset.pathname}</span>
+                    <small className="text-muted">
                       {asset.contentType} · {formatBytes(asset.size)}
                     </small>
                   </li>
                 ))}
               </ul>
               {(site.assets.length > 3 || showAllAssets) && (
-                <button type="button" className="textButton" onClick={() => setShowAllAssets((current) => !current)}>
+                <Button type="button" variant="text" onClick={() => setShowAllAssets((current) => !current)}>
                   {showAllAssets ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   {showAllAssets ? "Show fewer assets" : `Show ${extraAssetCount} more`}
-                </button>
+                </Button>
               )}
             </div>
           ) : (
-            <p className="empty">Nothing has been uploaded for this site yet.</p>
+            <p className="text-[0.92rem] leading-normal text-hint">Nothing has been uploaded for this site yet.</p>
           )}
           {hasUpload && !showReplacementUpload && (
-            <button type="button" className="ghost" onClick={() => onShowReplacementUpload(true)}>
+            <Button type="button" variant="ghost" onClick={() => onShowReplacementUpload(true)}>
               <Upload size={18} /> Replace upload
-            </button>
+            </Button>
           )}
           {(!hasUpload || showReplacementUpload) && (
-            <form onSubmit={onDeploy} className="replaceForm">
-              <UploadBox file={replacementUpload} dragActive={dragActive} onChooseFile={onChooseReplacement} onDrag={onDrag} label="Replace with HTML or ZIP" />
-              <div className="buttonRow">
-                <button disabled={busy || !replacementUpload} type="submit">
+            <form onSubmit={onDeploy} className="grid gap-3">
+              <UploadBox
+                file={replacementUpload}
+                dragActive={dragActive}
+                onChooseFile={onChooseReplacement}
+                onDrag={onDrag}
+                label="Replace with HTML or ZIP"
+              />
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Button disabled={busy || !replacementUpload} type="submit">
                   <Upload size={18} /> Upload replacement
-                </button>
+                </Button>
                 {hasUpload && (
-                  <button type="button" className="ghost" onClick={() => onShowReplacementUpload(false)}>
+                  <Button type="button" variant="ghost" onClick={() => onShowReplacementUpload(false)}>
                     Cancel
-                  </button>
+                  </Button>
                 )}
               </div>
             </form>
           )}
-        </section>
+        </Panel>
 
-        <section className="panel strong">
-          <div className="panelTitleRow">
+        <Panel tone="strong">
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
             <h3>
               <LockKeyhole size={20} /> Access and expiry
             </h3>
             {hasUpload && !accessEditing && (
-              <button type="button" className="copyIcon" onClick={() => setAccessEditing(true)} aria-label="Edit access settings">
+              <Button type="button" variant="copy" onClick={() => setAccessEditing(true)} aria-label="Edit access settings">
                 <Pencil size={17} />
-              </button>
+              </Button>
             )}
           </div>
           {!accessEditing ? (
-            <div className="readOnlySettings">
-              <div>
-                <span>Access</span>
-                <strong>{site.accessMode === "password" ? "Password protected" : "Public"}</strong>
+            <div className="grid gap-2.5">
+              <div className="flex justify-between gap-4 border-2 border-ink bg-sky-soft p-3">
+                <span className="text-[0.82rem] font-black uppercase text-muted">Access</span>
+                <strong className="text-right">{site.accessMode === "password" ? "Password protected" : "Public"}</strong>
               </div>
-              <div>
-                <span>Expiry</span>
-                <strong>{site.expiresAt ? formatDate(site.expiresAt) : "No expiry set"}</strong>
+              <div className="flex justify-between gap-4 border-2 border-ink bg-sky-soft p-3">
+                <span className="text-[0.82rem] font-black uppercase text-muted">Expiry</span>
+                <strong className="text-right">{site.expiresAt ? formatDate(site.expiresAt) : "No expiry set"}</strong>
               </div>
-              <div>
-                <span>Status</span>
-                <strong>{site.disabledAt ? "Disabled" : "Active"}</strong>
+              <div className="flex justify-between gap-4 border-2 border-ink bg-sky-soft p-3">
+                <span className="text-[0.82rem] font-black uppercase text-muted">Status</span>
+                <strong className="text-right">{site.disabledAt ? "Disabled" : "Active"}</strong>
               </div>
             </div>
           ) : (
@@ -193,21 +216,21 @@ export function SiteManage({
               />
             </form>
           )}
-        </section>
+        </Panel>
       </div>
 
       <AnalyticsPanel analytics={analytics} />
 
-      <section className="dangerZone">
+      <section className="flex items-center justify-between gap-[18px] border-2 border-ink bg-warm p-5 shadow-brutal max-stack:flex-col max-stack:items-stretch">
         <div>
-          <h3>
+          <h3 className="mb-1.5">
             <Trash2 size={20} /> Delete site
           </h3>
-          <p>This removes the site from your dashboard and disables the public URL.</p>
+          <p className="mb-0 text-danger-text">This removes the site from your dashboard and disables the public URL.</p>
         </div>
-        <button type="button" className="dangerButton" onClick={() => onDelete(site)}>
+        <Button type="button" variant="danger" onClick={() => onDelete(site)}>
           <Trash2 size={18} /> Delete site
-        </button>
+        </Button>
       </section>
     </section>
   );

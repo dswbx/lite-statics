@@ -8,9 +8,9 @@ export function WorldAccessMap({ countries }: { countries: Array<{ country: stri
     .map((country) => ({ ...country, coordinates: countryCoordinates(country.country) }))
     .filter((country): country is { country: string; views: number; coordinates: [number, number] } => Boolean(country.coordinates));
   return (
-    <div className="worldPanel">
-      <div className="worldMap" aria-label="World access map">
-        <ComposableMap projection="geoEqualEarth" projectionConfig={{ scale: 150 }} className="realWorldMap">
+    <div className="grid gap-3">
+      <div className="relative min-h-[170px] overflow-hidden border-2 border-ink bg-sky" aria-label="World access map">
+        <ComposableMap projection="geoEqualEarth" projectionConfig={{ scale: 150 }} className="block min-h-[190px] w-full">
           <Geographies geography={worldMap}>
             {({ geographies }) =>
               geographies.map((geography) => (
@@ -28,17 +28,23 @@ export function WorldAccessMap({ countries }: { countries: Array<{ country: stri
             </Marker>
           ))}
         </ComposableMap>
-        {countries.length === 0 && <span className="mapEmpty">No country data</span>}
-        {countries.length > 0 && plottedCountries.length === 0 && <span className="mapEmpty">Country codes unavailable</span>}
+        {countries.length === 0 && (
+          <span className="absolute inset-0 grid place-items-center font-[850] text-muted">No country data</span>
+        )}
+        {countries.length > 0 && plottedCountries.length === 0 && (
+          <span className="absolute inset-0 grid place-items-center font-[850] text-muted">Country codes unavailable</span>
+        )}
       </div>
-      <div className="countryList">
+      <div className="grid gap-2">
         {countries.slice(0, 5).map((country) => (
-          <div key={country.country}>
+          <div key={country.country} className="flex justify-between gap-3 border-b border-border-muted py-2">
             <span>{country.country}</span>
             <strong>{country.views}</strong>
           </div>
         ))}
-        {countries.length === 0 && <p className="empty">Country data appears after public visits.</p>}
+        {countries.length === 0 && (
+          <p className="text-[0.92rem] leading-normal text-hint">Country data appears after public visits.</p>
+        )}
       </div>
     </div>
   );

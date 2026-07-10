@@ -33,7 +33,7 @@ export default function SiteDetailPage() {
 
   if (!visibleSite) {
     return (
-      <section className="emptyState">
+      <section className="grid min-h-[340px] place-items-center content-center gap-3 border-2 border-ink bg-surface p-7 text-center shadow-brutal">
         <Rocket size={34} />
         <h2>{loading ? "Loading site..." : "Site not found."}</h2>
       </section>

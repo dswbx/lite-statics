@@ -5,7 +5,7 @@
    "type": "module",
    "scripts": {
       "dev": "bun run db:migration:apply:local && vite --host 0.0.0.0",
-      "dev:e2e": "rm -rf .wrangler/state/v3/d1 && bun run db:migration:apply:local && vite --host 127.0.0.1 --port 5180 --strictPort",
+      "dev:e2e": "rm -rf .wrangler-e2e/state && E2E=true bun run db:migration:apply:e2e && E2E=true vite --host 127.0.0.1 --port 5180 --strictPort",
       "worker:dev": "wrangler dev --port 8787",
       "build": "tsc -b && vite build",
       "preview": "vite preview",
@@ -17,6 +17,7 @@
       "db:migration:generate": "bun scripts/generate-d1-migrations.ts",
       "db:migration:list:local": "wrangler d1 migrations list static-host-db --local",
       "db:migration:apply:local": "bun run db:migration:generate && wrangler d1 migrations apply static-host-db --local",
+      "db:migration:apply:e2e": "bun run db:migration:generate && wrangler d1 migrations apply static-host-db --local --persist-to .wrangler-e2e/state",
       "db:migration:apply:prod": "bun run db:migration:generate && wrangler d1 migrations apply static-host-db --remote",
       "deploy": "bun run build && bun run db:migration:apply:prod && wrangler deploy --config dist/static_host/wrangler.json",
       "deploy:dry-run": "bun run build && wrangler deploy --config dist/static_host/wrangler.json --dry-run"
@@ -24,6 +25,7 @@
    "dependencies": {
       "@supabase/lite": "next",
       "@supabase/supabase-js": "^2.97.0",
+      "clsx": "^2.1.1",
       "hono": "^4.12.28",
       "jose": "^6.2.3",
       "jszip": "^3.10.1",

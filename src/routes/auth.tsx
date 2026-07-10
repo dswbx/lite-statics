@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { AuthForm } from "../components/auth/AuthForm";
+import { Shell } from "../components/ui/Shell";
 import { useNotice } from "../context/NoticeContext";
 import { supabase } from "../lib/supabase";
 
@@ -33,8 +34,8 @@ export default function AuthPage() {
   }
 
   return (
-    <main className="authShell">
+    <Shell variant="auth">
       <AuthForm mode={mode} setMode={setMode} busy={busy} notice={notice} onSubmit={submitAuth} />
-    </main>
+    </Shell>
   );
 }

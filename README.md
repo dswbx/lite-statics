@@ -65,6 +65,10 @@ bun run test
 bun run test:e2e
 ```
 
+`bun run test` (Vitest) does not touch your dev database. Integration tests use an ephemeral in-memory D1 via Wrangler's test harness.
+
+`bun run test:e2e` uses isolated storage at `.wrangler-e2e/state` and does not affect dev data in `.wrangler/state`.
+
 The end-to-end test signs up, creates a site, uploads an HTML file, opens the generated `/s/.../` link in a browser, and checks that the uploaded page appears instead of the dashboard.
 
 ## Stack

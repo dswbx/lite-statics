@@ -3,6 +3,9 @@ import { PreviewAssetList } from "../upload/PreviewAssetList";
 import { UploadBox } from "../upload/UploadBox";
 import { titleFromFile, type PreviewAsset } from "../../lib/upload";
 import { AccessSettingsFields } from "./AccessSettingsFields";
+import { Eyebrow } from "../ui/Eyebrow";
+import { Panel } from "../ui/Panel";
+import { Button } from "../ui/Button";
 
 export function NewSiteForm({
   file,
@@ -30,23 +33,26 @@ export function NewSiteForm({
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }) {
   return (
-    <form onSubmit={onSubmit} className="createLayout">
-      <section className="panel strong uploadFirst">
-        <p className="eyebrow">New site</p>
+    <form
+      onSubmit={onSubmit}
+      className="grid grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)] gap-6 pt-[26px] max-stack:grid-cols-1"
+    >
+      <Panel tone="strong" className="[&_h1]:text-[clamp(2.2rem,5vw,5rem)]">
+        <Eyebrow>New site</Eyebrow>
         <h1>Upload assets first.</h1>
-        <p className="hint">After upload, you can keep the suggested name and slug or edit them before publishing.</p>
+        <p className="text-[0.92rem] leading-normal text-hint">After upload, you can keep the suggested name and slug or edit them before publishing.</p>
         <UploadBox file={file} dragActive={dragActive} onChooseFile={onChooseFile} onDrag={onDrag} label="Drop HTML or ZIP here" />
         {file && (
-          <div className="inlineUploadNotice">
+          <div className="mt-3.5 grid gap-1 border-2 border-ink bg-lime px-3.5 py-3">
             <strong>{file.name} is ready.</strong>
-            <span>
+            <span className="text-[0.9rem] font-extrabold text-label">
               {assets.length} {assets.length === 1 ? "file" : "files"} found. Review the list, then publish.
             </span>
           </div>
         )}
         {assets.length > 0 && <PreviewAssetList assets={assets} />}
-      </section>
-      <section className="panel publishPanel">
+      </Panel>
+      <Panel className="self-start">
         <h2>Publish details</h2>
         <label>
           Name optional
@@ -56,17 +62,19 @@ export function NewSiteForm({
           Slug
           <input value={slug} onChange={(event) => onSlug(event.currentTarget.value)} placeholder="auto-generated" />
         </label>
-        <p className="previewUrl">Public URL preview: /s/{slug || "generated-slug"}/</p>
-      </section>
-      <section className="panel strong">
+        <p className="border-2 border-ink bg-sky-soft p-2.5 text-[0.92rem] font-[850] leading-normal text-hint">
+          Public URL preview: /s/{slug || "generated-slug"}/
+        </p>
+      </Panel>
+      <Panel tone="strong">
         <h2>
           <LockKeyhole size={20} /> Access and expiry
         </h2>
         <AccessSettingsFields showSubmit={false} />
-        <button disabled={busy || !file} type="submit">
+        <Button disabled={busy || !file} type="submit">
           <Rocket size={18} /> Create site and upload
-        </button>
-      </section>
+        </Button>
+      </Panel>
     </form>
   );
 }
