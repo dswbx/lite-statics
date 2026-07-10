@@ -1,51 +1,52 @@
-import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-import worldMap from "world-atlas/countries-110m.json";
-import { countryCoordinates } from "../../lib/analytics";
+import type { AnalyticsRow } from "../../shared/types";
+import { aggregateViewsByCountry } from "../../lib/analytics";
+import { Progress } from "../ui/progress";
 
-export function WorldAccessMap({ countries }: { countries: Array<{ country: string; views: number }> }) {
-  const maxViews = Math.max(...countries.map((country) => country.views), 1);
-  const plottedCountries = countries
-    .map((country) => ({ ...country, coordinates: countryCoordinates(country.country) }))
-    .filter((country): country is { country: string; views: number; coordinates: [number, number] } => Boolean(country.coordinates));
-  return (
-    <div className="grid gap-3">
-      <div className="relative min-h-[170px] overflow-hidden border-2 border-ink bg-sky" aria-label="World access map">
-        <ComposableMap projection="geoEqualEarth" projectionConfig={{ scale: 150 }} className="block min-h-[190px] w-full">
-          <Geographies geography={worldMap}>
-            {({ geographies }) =>
-              geographies.map((geography) => (
-                <Geography key={geography.rsmKey} geography={geography} className="mapGeography" tabIndex={-1} />
-              ))
-            }
-          </Geographies>
-          {plottedCountries.slice(0, 12).map((country) => (
-            <Marker key={country.country} coordinates={country.coordinates}>
-              <circle className="mapDot" r={6 + (country.views / maxViews) * 12}>
-                <title>
-                  {country.country}: {country.views} views
-                </title>
-              </circle>
-            </Marker>
-          ))}
-        </ComposableMap>
-        {countries.length === 0 && (
-          <span className="absolute inset-0 grid place-items-center font-[850] text-muted">No country data</span>
-        )}
-        {countries.length > 0 && plottedCountries.length === 0 && (
-          <span className="absolute inset-0 grid place-items-center font-[850] text-muted">Country codes unavailable</span>
-        )}
+export function flagEmoji(code: string): string {
+   if (!/^[a-zA-Z]{2}$/.test(code)) return "🌐";
+   return String.fromCodePoint(
+      ...code
+         .toUpperCase()
+         .split("")
+         .map((char) => 0x1f1e6 + char.charCodeAt(0) - 65)
+   );
+}
+
+export function CountryAccess({ analytics }: { analytics: AnalyticsRow[] }) {
+   const countries = aggregateViewsByCountry(analytics);
+   const maxViews = Math.max(...countries.map((country) => country.views), 1);
+   const totalVisits = countries.reduce(
+      (sum, country) => sum + country.views,
+      0
+   );
+
+   if (countries.length === 0) {
+      return <p className="text-muted text-sm">No visits yet.</p>;
+   }
+
+   return (
+      <div className="flex flex-col gap-3">
+         {countries.map((country) => (
+            <div key={country.country} className="flex items-center gap-3">
+               <span className="text-base leading-none">
+                  {flagEmoji(country.country)}
+               </span>
+               <span className="font-mono text-[13px] min-w-10">
+                  {country.country}
+               </span>
+               <Progress
+                  value={(country.views / maxViews) * 100}
+                  className="flex-1"
+               />
+               <span className="font-mono text-[13px] text-muted">
+                  {country.views}
+               </span>
+            </div>
+         ))}
+         <div className="font-mono text-[12px] text-muted mt-3">
+            {countries.length} {countries.length === 1 ? "country" : "countries"}{" "}
+            · {totalVisits} visit{totalVisits === 1 ? "" : "s"} total
+         </div>
       </div>
-      <div className="grid gap-2">
-        {countries.slice(0, 5).map((country) => (
-          <div key={country.country} className="flex justify-between gap-3 border-b border-border-muted py-2">
-            <span>{country.country}</span>
-            <strong>{country.views}</strong>
-          </div>
-        ))}
-        {countries.length === 0 && (
-          <p className="text-[0.92rem] leading-normal text-hint">Country data appears after public visits.</p>
-        )}
-      </div>
-    </div>
-  );
+   );
 }

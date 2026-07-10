@@ -1,52 +1,114 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
+/*
+ * Ink & Paper design system.
+ * Two fonts: Archivo (interface/prose), IBM Plex Mono (display, numbers, URLs, tables, eyebrows).
+ */
 @theme {
-   --breakpoint-stack: 56.25rem;
+   --breakpoint-stack: 48rem; /* 768px — sidebar collapses to bottom tab bar below this */
 
-   --color-ink: #17201b;
-   --color-canvas: #f3f5ef;
-   --color-surface: #ffffff;
-   --color-cream: #fffef9;
-   --color-lime: #d7ff52;
-   --color-teal: #0f766e;
-   --color-link: #16624d;
-   --color-muted: #526258;
-   --color-eyebrow: #506156;
-   --color-label: #34443a;
-   --color-lede: #46544b;
-   --color-hint: #5a665e;
-   --color-sky: #eef7ff;
-   --color-sky-soft: #f7fbff;
-   --color-warm: #fff7f3;
-   --color-warm-hover: #ffe9df;
-   --color-coral: #ffb48a;
-   --color-coral-soft: #ffd5c7;
-   --color-danger: #b42318;
-   --color-danger-hint: #7a3228;
-   --color-danger-text: #6b5147;
-   --color-pill-empty: #d9dfd8;
-   --color-paper: #fbfcf7;
-   --color-border-muted: #ccd7cf;
-   --color-chart-empty: #9ba8a0;
+   /* palette */
+   --color-paper: #f4f1e8; /* app background */
+   --color-surface: #fcfaf3; /* cards, panels, sidebar */
+   --color-surface2: #efebdf; /* track / inset fills */
+   --color-ink: #1b1c18; /* primary text, primary buttons */
+   --color-muted: #6e7065; /* secondary text, labels */
+   --color-line: #d8d3c4; /* borders, dividers */
+   --color-accent: #2e5a3e; /* brand green: links, active, status, chart */
+   --color-accent-soft: #e4ece2; /* accent badge / pill backgrounds */
+   --color-dz: #b9c2b3; /* dashed dropzone border */
+   --color-danger: #9a3b28; /* delete labels / danger text */
+   --color-danger-solid: #9a3b28; /* solid destructive button fill */
+   --color-danger-bg: #fbf1ee; /* delete zone background */
+   --color-danger-border: #e7c9c0; /* delete zone border */
 
-   --font-sans: "Avenir Next", "Segoe UI", sans-serif;
-   --font-serif: Georgia, "Times New Roman", serif;
+   --color-on-ink: #f4f1e8; /* text on ink surfaces */
+   --color-on-accent: #ffffff; /* text/icons on solid accent */
+   --color-scrim: rgba(27, 28, 24, 0.3); /* modal / overlay backdrop */
 
-   --shadow-brutal: 5px 5px 0 var(--color-ink);
+   /* type */
+   --font-sans: "Archivo", "Segoe UI", system-ui, sans-serif;
+   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+   /* shape */
+   --radius: 0.75rem; /* 12px card baseline */
+
+   /* soft, non-brutalist shadows */
+   --shadow-card: 0 1px 2px rgba(27, 28, 24, 0.04),
+      0 24px 60px -24px rgba(27, 28, 24, 0.22);
+   --shadow-pop: 0 8px 30px -8px rgba(27, 28, 24, 0.28);
+}
+
+/*
+ * shadcn / Base UI semantic tokens mapped onto the Ink & Paper palette,
+ * so any shadcn-authored primitive (bg-background, text-foreground, …) inherits the theme.
+ */
+:root {
+   --radius: 0.75rem;
+
+   --background: var(--color-paper);
+   --foreground: var(--color-ink);
+   --card: var(--color-surface);
+   --card-foreground: var(--color-ink);
+   --popover: var(--color-surface);
+   --popover-foreground: var(--color-ink);
+   --primary: var(--color-ink);
+   --primary-foreground: var(--color-on-ink);
+   --secondary: var(--color-surface2);
+   --secondary-foreground: var(--color-ink);
+   --muted: var(--color-surface2);
+   --muted-foreground: var(--color-muted);
+   --accent: var(--color-accent-soft);
+   --accent-foreground: var(--color-accent);
+   --destructive: var(--color-danger);
+   --destructive-foreground: #ffffff;
+   --border: var(--color-line);
+   --input: var(--color-line);
+   --ring: var(--color-accent);
+}
+
+@theme inline {
+   --color-background: var(--background);
+   --color-foreground: var(--foreground);
+   --color-card: var(--card);
+   --color-card-foreground: var(--card-foreground);
+   --color-popover: var(--popover);
+   --color-popover-foreground: var(--popover-foreground);
+   --color-primary: var(--primary);
+   --color-primary-foreground: var(--primary-foreground);
+   --color-secondary: var(--secondary);
+   --color-secondary-foreground: var(--secondary-foreground);
+   --color-muted-token: var(--muted);
+   --color-muted-foreground: var(--muted-foreground);
+   --color-accent-token: var(--accent);
+   --color-accent-foreground: var(--accent-foreground);
+   --color-destructive: var(--destructive);
+   --color-destructive-foreground: var(--destructive-foreground);
+   --color-border: var(--border);
+   --color-input: var(--input);
+   --color-ring: var(--ring);
+
+   --radius-sm: calc(var(--radius) - 4px);
+   --radius-md: calc(var(--radius) - 2px);
+   --radius-lg: var(--radius);
+   --radius-xl: calc(var(--radius) + 4px);
 }
 
 @layer base {
    :root {
       font-family: var(--font-sans);
       color: var(--color-ink);
-      background: var(--color-canvas);
+      background: var(--color-paper);
       font-synthesis: none;
       text-rendering: optimizeLegibility;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
    }
 
    * {
       box-sizing: border-box;
+      border-color: var(--color-line);
    }
 
    body {
@@ -55,110 +117,92 @@
       min-height: 100vh;
    }
 
-   button,
+   button {
+      cursor: pointer;
+      font: inherit;
+   }
+
+   button:disabled {
+      cursor: not-allowed;
+   }
+
    input {
       font: inherit;
    }
 
-   button {
-      @apply inline-flex min-h-[42px] cursor-pointer items-center justify-center gap-2 border-0 bg-ink px-3.5 py-2.5 font-black text-paper;
-   }
-
-   button:disabled {
-      @apply cursor-not-allowed opacity-55;
-   }
-
-   a {
-      @apply font-extrabold text-link;
-   }
-
-   h1,
-   h2,
-   h3,
-   p {
-      @apply mt-0;
-   }
-
-   h1 {
-      @apply mb-3 font-serif text-[clamp(2.4rem,5.5vw,5.6rem)] leading-[0.92];
-   }
-
-   h2 {
-      @apply mb-3 text-[1.35rem];
-   }
-
-   h3 {
-      @apply mb-4 flex items-center gap-2 text-base;
-   }
-
-   label {
-      @apply mb-3.5 grid gap-[7px] text-[0.86rem] font-[850] text-label;
-   }
-
-   input {
-      @apply min-h-11 w-full border-2 border-ink bg-cream px-[11px] py-2.5 text-ink;
+   ::selection {
+      background: var(--color-accent-soft);
+      color: var(--color-ink);
    }
 }
 
-@utility debug {
-   @apply border border-red-500;
+/*
+ * Dark mode — "Ink & Paper" after dark. Overriding the raw palette tokens is
+ * enough: every bg-paper / text-ink / --background utility resolves var() at
+ * use time, so the whole system (incl. shadcn semantic vars) flips from here.
+ */
+.dark {
+   /* near-black neutrals with only a hair of warmth (R>=G>=B) */
+   --color-paper: #0f0f0e;
+   --color-surface: #191918;
+   --color-surface2: #232322;
+   --color-ink: #eeebdf;
+   --color-muted: #96958d;
+   --color-line: #302f2d;
+   --color-accent: #79c48f;
+   --color-accent-soft: #22352a;
+   --color-dz: #3f3e39;
+   --color-danger: #e8917e;
+   --color-danger-solid: #c2503a;
+   --color-danger-bg: #241713;
+   --color-danger-border: #4a2f27;
+
+   --color-on-ink: #141610;
+   --color-on-accent: #141610;
+   --color-scrim: rgba(0, 0, 0, 0.55);
+
+   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2),
+      0 24px 60px -24px rgba(0, 0, 0, 0.55);
+   --shadow-pop: 0 8px 30px -8px rgba(0, 0, 0, 0.6);
+
+   color-scheme: dark;
 }
 
-/* shell grid background */
+/* full-viewport paper wrapper for landing / auth / app pages */
 .shell-bg {
    min-height: 100vh;
-   padding: 28px;
-   background: linear-gradient(
-         90deg,
-         rgba(23, 32, 27, 0.06) 1px,
-         transparent 1px
-      ),
-      linear-gradient(0deg, rgba(23, 32, 27, 0.06) 1px, transparent 1px),
-      var(--color-canvas);
-   background-size: 30px 30px;
+   background: var(--color-paper);
 }
 
-@media (max-width: 56.25rem) {
-   .shell-bg {
-      padding: 16px;
-   }
-}
-
-/* svg map */
-.mapGeography {
-   fill: rgba(15, 118, 110, 0.18);
-   stroke: rgba(23, 32, 27, 0.45);
-   stroke-width: 0.75;
-   outline: none;
-}
-
-.mapDot {
-   fill: var(--color-lime);
-   stroke: var(--color-ink);
-   stroke-width: 3;
-   opacity: 0.9;
-}
-
-/* analytics table */
+/* analytics request table — CSS grid is far cleaner here than Tailwind arbitrary grids */
 .tableHead,
 .tableRow {
    display: grid;
-   grid-template-columns: 110px minmax(170px, 1fr) 80px 90px minmax(140px, 1fr) 70px;
-   min-width: 760px;
-   gap: 10px;
-   padding: 10px 0;
-   border-bottom: 1px solid var(--color-border-muted);
+   grid-template-columns: 108px minmax(150px, 1fr) 72px 96px minmax(120px, 1fr) 60px;
+   min-width: 720px;
+   gap: 12px;
+   padding: 12px 0;
+   border-bottom: 1px solid var(--color-line);
+   align-items: center;
 }
 
 .tableHead {
    color: var(--color-muted);
-   font-size: 0.78rem;
-   font-weight: 900;
+   font-family: var(--font-mono);
+   font-size: 11px;
+   font-weight: 500;
+   letter-spacing: 0.06em;
    text-transform: uppercase;
 }
 
-/* hidden file input inside dropzone */
+.tableRow {
+   font-family: var(--font-mono);
+   font-size: 13px;
+}
+
+/* visually hidden file input inside dropzones */
 .dropzone-input {
+   position: absolute;
    width: 1px;
    height: 1px;
    min-height: 0;

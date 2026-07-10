@@ -1,13 +1,11 @@
 import {
-   Activity,
    CheckCircle2,
    ChevronDown,
    ChevronUp,
-   Copy,
    ExternalLink,
-   FileArchive,
-   FileText,
-   LockKeyhole,
+   File,
+   Globe,
+   Lock,
    Pencil,
    Trash2,
    Upload,
@@ -16,15 +14,21 @@ import { useState } from "react";
 import type { AnalyticsRow, SiteSummary } from "../../shared/types";
 import { formatBytes, formatDate } from "../../lib/format";
 import { siteDisplayStatus, siteHasUpload } from "../../lib/site";
+import { cn } from "../../lib/cn";
 import { AnalyticsPanel } from "../analytics/AnalyticsPanel";
 import { UploadBox } from "../upload/UploadBox";
-import { Metric } from "../ui/Metric";
+import { Metric } from "../ui/metric";
 import { AccessSettingsFields } from "./AccessSettingsFields";
-import { Eyebrow } from "../ui/Eyebrow";
-import { StatusPill } from "../ui/StatusPill";
-import { PrimaryCta } from "../ui/PrimaryCta";
-import { Button } from "../ui/Button";
-import { Panel } from "../ui/Panel";
+import { Button } from "../ui/button";
+import { PrimaryCta } from "../ui/primary-cta";
+import { Badge } from "../ui/badge";
+import {
+   Card,
+   CardContent,
+   CardHeader,
+   CardTitle,
+} from "../ui/card";
+import { ConfirmDialog } from "../ui/confirm-dialog";
 
 export function SiteManage({
    site,
@@ -58,6 +62,7 @@ export function SiteManage({
    onDelete: (site: SiteSummary) => void;
 }) {
    const [showAllAssets, setShowAllAssets] = useState(false);
+   const [deleteOpen, setDeleteOpen] = useState(false);
    const hasUpload = siteHasUpload(site);
    const [accessEditing, setAccessEditing] = useState(!hasUpload);
    const shownAssets = showAllAssets ? site.assets : site.assets.slice(0, 3);
@@ -65,273 +70,287 @@ export function SiteManage({
    const status = siteDisplayStatus(site);
    const isDisabled = status.kind === "disabled";
 
+   const sizeText = formatBytes(site.totalBytes ?? 0);
+   const [sizeValue, ...sizeUnitParts] = sizeText.split(" ");
+   const sizeUnit = sizeUnitParts.join(" ");
+
    return (
-      <section className="grid gap-6 pt-[26px]">
-         <header className="flex items-center justify-between gap-[18px] border-2 border-ink bg-surface p-5 shadow-brutal max-stack:flex-col max-stack:items-stretch">
-            <div>
-               <Eyebrow>
-                  Site settings
-                  {site.accessMode === "password" && (
-                     <LockKeyhole
-                        size={14}
-                        aria-label="Password protected"
-                        className="ml-1.5 inline-block align-[-2px]"
-                     />
-                  )}
-               </Eyebrow>
-               <div className="mb-1 flex flex-wrap items-center gap-2.5">
-                  <h1 className="mb-0 text-[clamp(2rem,4.5vw,4.2rem)]">
-                     {site.name}
-                  </h1>
-                  <StatusPill kind={status.kind}>{status.label}</StatusPill>
+      <div>
+         <header className="border-b border-line px-8 py-7 max-stack:px-5 max-stack:py-5">
+            <div className="flex items-start justify-between gap-6 max-stack:flex-col">
+               <div className="flex flex-col gap-2.5">
+                  <div className="font-mono text-[12px] text-muted">
+                     sites / <span className="text-ink">{site.slug}</span>
+                  </div>
+                  <div className="flex items-center gap-3.5 flex-wrap">
+                     <h1 className="font-mono text-[40px] max-stack:text-[32px] leading-none font-semibold tracking-[-0.035em]">
+                        {site.name}
+                     </h1>
+                     {isDisabled ? (
+                        <Badge variant="muted">disabled</Badge>
+                     ) : hasUpload ? (
+                        <Badge variant="accent">
+                           <span className="size-1.5 rounded-full bg-accent" />
+                           live
+                        </Badge>
+                     ) : (
+                        <Badge variant="outline">no upload</Badge>
+                     )}
+                  </div>
                </div>
-               {isDisabled && (
-                  <p className="mb-2.5 max-w-[620px] font-[850] text-danger-hint">
-                     This site is disabled. The public URL shows an inactive
-                     page until access is re-enabled.
-                  </p>
-               )}
-               {hasUpload ? (
-                  <a href={publicUrl} target="_blank" rel="noreferrer">
-                     {publicUrl}
-                  </a>
-               ) : (
-                  <span className="font-[850] text-muted">
-                     No public upload yet.
+               <div className="flex items-center gap-2.5 max-stack:w-full">
+                  <span className="inline-flex items-center font-mono text-[13px] text-accent bg-surface border border-line px-3.5 py-2 rounded-lg">
+                     /s/{site.slug}/
                   </span>
-               )}
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2.5">
-               <PrimaryCta
-                  disabled={!hasUpload || isDisabled}
-                  href={hasUpload ? publicUrl : undefined}
-                  target="_blank"
-                  rel="noreferrer"
-               >
-                  <ExternalLink size={18} /> Open site
-               </PrimaryCta>
-               <Button
-                  type="button"
-                  variant="copy"
-                  disabled={!hasUpload || isDisabled}
-                  onClick={() => void navigator.clipboard.writeText(publicUrl)}
-                  aria-label="Copy public link"
-               >
-                  <Copy size={18} />
-               </Button>
+                  <PrimaryCta
+                     disabled={!hasUpload || isDisabled}
+                     href={hasUpload ? publicUrl : undefined}
+                     target="_blank"
+                     rel="noreferrer"
+                  >
+                     <ExternalLink size={16} strokeWidth={2} /> Open site
+                  </PrimaryCta>
+               </div>
             </div>
          </header>
 
-         <div className="grid grid-cols-3 gap-5 max-stack:grid-cols-1">
-            <Metric
-               icon={<FileText />}
-               label="Current upload"
-               value={hasUpload ? `${site.assetCount} files` : "None"}
-            />
-            <Metric
-               icon={<FileArchive />}
-               label="Size"
-               value={
-                  hasUpload && site.totalBytes != null
-                     ? formatBytes(site.totalBytes)
-                     : "-"
-               }
-            />
-            <Metric
-               icon={<Activity />}
-               label="Views"
-               value={String(totalViews)}
-            />
-         </div>
+         <div className="px-8 py-7 max-stack:px-5 max-stack:py-5 flex flex-col gap-3.5">
+            <div className="grid grid-cols-3 gap-3.5 max-stack:grid-cols-3">
+               <Metric label="files" value={site.assetCount || 0} />
+               <Metric label="size" value={sizeValue} unit={sizeUnit} />
+               <Metric label="views" value={totalViews} />
+            </div>
 
-         <div className="grid grid-cols-2 gap-[22px] max-stack:grid-cols-1">
-            <Panel tone="strong">
-               <h3>
-                  <CheckCircle2 size={20} /> Uploaded state
-               </h3>
-               {hasUpload ? (
-                  <div className="mb-[18px] grid gap-2 border-2 border-ink bg-sky-soft p-3.5">
-                     <strong>Live upload</strong>
-                     <span>
-                        {site.assetCount} assets,{" "}
-                        {site.totalBytes != null
-                           ? formatBytes(site.totalBytes)
-                           : "-"}
-                     </span>
-                     <span>
-                        Uploaded{" "}
-                        {site.deployedAt ? formatDate(site.deployedAt) : "-"}
-                     </span>
-                     <ul
-                        className="m-2 mt-0 grid list-none gap-2 p-0"
-                        aria-label="Uploaded assets"
-                     >
-                        {shownAssets.map((asset) => (
-                           <li
-                              key={asset.pathname}
-                              className="grid gap-0.5 border border-border-muted bg-cream p-2.5"
-                           >
-                              <span className="font-[850] [overflow-wrap:anywhere]">
-                                 {asset.pathname}
-                              </span>
-                              <small className="text-muted">
-                                 {asset.contentType} · {formatBytes(asset.size)}
-                              </small>
-                           </li>
-                        ))}
-                     </ul>
-                     {(site.assets.length > 3 || showAllAssets) && (
+            <div className="grid grid-cols-2 gap-3.5 max-stack:grid-cols-1">
+               <Card>
+                  <CardHeader>
+                     <CardTitle className="flex items-center gap-2">
+                        <CheckCircle2
+                           size={18}
+                           strokeWidth={2}
+                           className="text-accent"
+                        />
+                        Uploaded state
+                     </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-3">
+                     {hasUpload ? (
+                        <>
+                           <div className="rounded-[10px] border border-line bg-paper p-4">
+                              <div className="font-semibold text-[15px]">
+                                 Live upload
+                              </div>
+                              <div className="font-mono text-[12px] text-muted leading-[1.7] mt-2">
+                                 {site.assetCount} asset
+                                 {site.assetCount === 1 ? "" : "s"} ·{" "}
+                                 {formatBytes(site.totalBytes ?? 0)}
+                                 <br />
+                                 uploaded{" "}
+                                 {formatDate(
+                                    site.deployedAt ?? site.createdAt
+                                 )}
+                              </div>
+                           </div>
+                           {shownAssets.map((asset) => (
+                              <div
+                                 key={asset.pathname}
+                                 className="rounded-lg border border-line bg-surface px-3.5 py-2.5 flex items-center gap-2.5"
+                              >
+                                 <File
+                                    size={16}
+                                    strokeWidth={2}
+                                    className="text-accent shrink-0"
+                                 />
+                                 <span className="font-mono text-[12px] break-all">
+                                    {asset.pathname} · {asset.contentType} ·{" "}
+                                    {formatBytes(asset.size)}
+                                 </span>
+                              </div>
+                           ))}
+                           {(site.assets.length > 3 || showAllAssets) && (
+                              <Button
+                                 type="button"
+                                 variant="ghost"
+                                 size="sm"
+                                 className="w-fit"
+                                 onClick={() =>
+                                    setShowAllAssets((current) => !current)
+                                 }
+                              >
+                                 {showAllAssets ? (
+                                    <ChevronUp size={16} strokeWidth={2} />
+                                 ) : (
+                                    <ChevronDown size={16} strokeWidth={2} />
+                                 )}
+                                 {showAllAssets
+                                    ? "Show fewer assets"
+                                    : `Show ${extraAssetCount} more`}
+                              </Button>
+                           )}
+                        </>
+                     ) : (
+                        <p className="text-sm text-muted">
+                           Nothing has been uploaded for this site yet.
+                        </p>
+                     )}
+
+                     {hasUpload && !showReplacementUpload && (
                         <Button
                            type="button"
-                           variant="text"
-                           onClick={() =>
-                              setShowAllAssets((current) => !current)
-                           }
+                           variant="outline"
+                           onClick={() => onShowReplacementUpload(true)}
                         >
-                           {showAllAssets ? (
-                              <ChevronUp size={16} />
-                           ) : (
-                              <ChevronDown size={16} />
-                           )}
-                           {showAllAssets
-                              ? "Show fewer assets"
-                              : `Show ${extraAssetCount} more`}
+                           <Upload size={16} strokeWidth={2} /> Replace upload
                         </Button>
                      )}
-                  </div>
-               ) : (
-                  <p className="text-[0.92rem] leading-normal text-hint">
-                     Nothing has been uploaded for this site yet.
-                  </p>
-               )}
-               {hasUpload && !showReplacementUpload && (
-                  <Button
-                     type="button"
-                     variant="ghost"
-                     onClick={() => onShowReplacementUpload(true)}
-                  >
-                     <Upload size={18} /> Replace upload
-                  </Button>
-               )}
-               {(!hasUpload || showReplacementUpload) && (
-                  <form onSubmit={onDeploy} className="grid gap-3">
-                     <UploadBox
-                        file={replacementUpload}
-                        dragActive={dragActive}
-                        onChooseFile={onChooseReplacement}
-                        onDrag={onDrag}
-                        label="Replace with HTML or ZIP"
-                     />
-                     <div className="flex flex-wrap items-center gap-2.5">
+                     {(!hasUpload || showReplacementUpload) && (
+                        <form onSubmit={onDeploy} className="flex flex-col gap-3">
+                           <UploadBox
+                              file={replacementUpload}
+                              dragActive={dragActive}
+                              onChooseFile={onChooseReplacement}
+                              onDrag={onDrag}
+                              label="Replace with HTML or ZIP"
+                           />
+                           <div className="flex flex-wrap items-center gap-2.5">
+                              <Button
+                                 disabled={busy || !replacementUpload}
+                                 type="submit"
+                              >
+                                 <Upload size={16} strokeWidth={2} /> Upload
+                                 replacement
+                              </Button>
+                              {hasUpload && (
+                                 <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() =>
+                                       onShowReplacementUpload(false)
+                                    }
+                                 >
+                                    Cancel
+                                 </Button>
+                              )}
+                           </div>
+                        </form>
+                     )}
+                  </CardContent>
+               </Card>
+
+               <Card>
+                  <CardHeader className="flex-row items-center justify-between">
+                     <CardTitle className="flex items-center gap-2">
+                        <Lock
+                           size={18}
+                           strokeWidth={2}
+                           className="text-accent"
+                        />
+                        Access & expiry
+                     </CardTitle>
+                     {hasUpload && !accessEditing && (
                         <Button
-                           disabled={busy || !replacementUpload}
-                           type="submit"
+                           type="button"
+                           variant="ghost"
+                           size="icon"
+                           onClick={() => setAccessEditing(true)}
+                           aria-label="Edit access settings"
                         >
-                           <Upload size={18} /> Upload replacement
+                           <Pencil size={16} strokeWidth={2} />
                         </Button>
-                        {hasUpload && (
-                           <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() => onShowReplacementUpload(false)}
-                           >
-                              Cancel
-                           </Button>
-                        )}
-                     </div>
-                  </form>
-               )}
-            </Panel>
-
-            <Panel tone="strong">
-               <div className="flex flex-wrap align-start justify-between gap-2.5">
-                  <h3>
-                     <LockKeyhole size={20} /> Access and expiry
-                  </h3>
-                  {hasUpload && !accessEditing && (
-                     <Button
-                        type="button"
-                        variant="copy"
-                        onClick={() => setAccessEditing(true)}
-                        aria-label="Edit access settings"
-                        className="mb-2"
-                     >
-                        <Pencil size={13} />
-                     </Button>
-                  )}
-               </div>
-               {!accessEditing ? (
-                  <div className="grid gap-2.5">
-                     <div className="flex justify-between gap-4 border-2 border-ink bg-sky-soft p-3">
-                        <span className="text-[0.82rem] font-black uppercase text-muted">
-                           Access
-                        </span>
-                        <strong className="text-right">
-                           {site.accessMode === "password"
-                              ? "Password protected"
-                              : "Public"}
-                        </strong>
-                     </div>
-                     <div className="flex justify-between gap-4 border-2 border-ink bg-sky-soft p-3">
-                        <span className="text-[0.82rem] font-black uppercase text-muted">
-                           Expiry
-                        </span>
-                        <strong className="text-right">
-                           {site.expiresAt
-                              ? formatDate(site.expiresAt)
-                              : "No expiry set"}
-                        </strong>
-                     </div>
-                     <div className="flex justify-between gap-4 border-2 border-ink bg-sky-soft p-3">
-                        <span className="text-[0.82rem] font-black uppercase text-muted">
-                           Status
-                        </span>
-                        <strong className="text-right">
-                           {site.disabledAt ? "Disabled" : "Active"}
-                        </strong>
-                     </div>
-                  </div>
-               ) : (
-                  <form
-                     key={site.id}
-                     onSubmit={async (event) => {
-                        await onUpdateAccess(event);
-                        setAccessEditing(false);
-                     }}
-                  >
-                     <AccessSettingsFields
-                        defaultAccessMode={site.accessMode}
-                        defaultDisabled={Boolean(site.disabledAt)}
-                        busy={busy}
-                        onCancel={
-                           hasUpload ? () => setAccessEditing(false) : undefined
-                        }
-                     />
-                  </form>
-               )}
-            </Panel>
-         </div>
-
-         <AnalyticsPanel analytics={analytics} />
-
-         <section className="flex items-center justify-between gap-[18px] border-2 border-ink bg-warm p-5 shadow-brutal max-stack:flex-col max-stack:items-stretch">
-            <div>
-               <h3 className="mb-1.5">
-                  <Trash2 size={20} /> Delete site
-               </h3>
-               <p className="mb-0 text-danger-text">
-                  This removes the site from your dashboard and disables the
-                  public URL.
-               </p>
+                     )}
+                  </CardHeader>
+                  <CardContent>
+                     {!accessEditing ? (
+                        <div className="flex flex-col gap-2.5">
+                           <div className="rounded-lg border border-line bg-paper px-3.5 py-3 flex items-center justify-between text-sm">
+                              <span className="text-muted">access</span>
+                              <span className="flex items-center gap-1.5 font-medium">
+                                 {site.accessMode === "password" ? (
+                                    <Lock size={14} strokeWidth={2} />
+                                 ) : (
+                                    <Globe size={14} strokeWidth={2} />
+                                 )}
+                                 {site.accessMode === "password"
+                                    ? "Password"
+                                    : "Public"}
+                              </span>
+                           </div>
+                           <div className="rounded-lg border border-line bg-paper px-3.5 py-3 flex items-center justify-between text-sm">
+                              <span className="text-muted">expiry</span>
+                              <span className="font-medium">
+                                 {site.expiresAt
+                                    ? formatDate(site.expiresAt)
+                                    : "no expiry set"}
+                              </span>
+                           </div>
+                           <div className="rounded-lg border border-line bg-paper px-3.5 py-3 flex items-center justify-between text-sm">
+                              <span className="text-muted">status</span>
+                              <span className="flex items-center gap-1.5 font-medium">
+                                 <span
+                                    className={cn(
+                                       "size-1.5 rounded-full",
+                                       site.disabledAt
+                                          ? "bg-muted"
+                                          : "bg-accent"
+                                    )}
+                                 />
+                                 {site.disabledAt ? "Disabled" : "Active"}
+                              </span>
+                           </div>
+                        </div>
+                     ) : (
+                        <form
+                           key={site.id}
+                           onSubmit={async (event) => {
+                              await onUpdateAccess(event);
+                              setAccessEditing(false);
+                           }}
+                        >
+                           <AccessSettingsFields
+                              defaultAccessMode={site.accessMode}
+                              defaultDisabled={Boolean(site.disabledAt)}
+                              busy={busy}
+                              onCancel={
+                                 hasUpload
+                                    ? () => setAccessEditing(false)
+                                    : undefined
+                              }
+                           />
+                        </form>
+                     )}
+                  </CardContent>
+               </Card>
             </div>
-            <Button
-               type="button"
-               variant="danger"
-               onClick={() => onDelete(site)}
-            >
-               <Trash2 size={18} /> Delete site
-            </Button>
-         </section>
-      </section>
+
+            <AnalyticsPanel analytics={analytics} />
+
+            <div className="rounded-[14px] border border-danger-border bg-danger-bg p-5 flex items-center justify-between gap-4 max-stack:flex-col max-stack:items-start">
+               <div>
+                  <div className="font-semibold text-danger">Delete site</div>
+                  <p className="text-[13px] text-danger/80 mt-1">
+                     Permanently remove this deployment and disable its public
+                     URL.
+                  </p>
+               </div>
+               <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => setDeleteOpen(true)}
+               >
+                  <Trash2 size={16} strokeWidth={2} /> Delete site
+               </Button>
+               <ConfirmDialog
+                  open={deleteOpen}
+                  onOpenChange={setDeleteOpen}
+                  title="Delete this site?"
+                  description="This permanently removes the deployment and disables its public URL. This cannot be undone."
+                  confirmLabel="Delete site"
+                  confirmIcon={<Trash2 size={16} strokeWidth={2} />}
+                  destructive
+                  onConfirm={() => onDelete(site)}
+               />
+            </div>
+         </div>
+      </div>
    );
 }

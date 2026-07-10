@@ -33,10 +33,14 @@ export default function SiteDetailPage() {
 
   if (!visibleSite) {
     return (
-      <section className="grid min-h-[340px] place-items-center content-center gap-3 border-2 border-ink bg-surface p-7 text-center shadow-brutal">
-        <Rocket size={34} />
-        <h2>{loading ? "Loading site..." : "Site not found."}</h2>
-      </section>
+      <div className="flex min-h-[340px] items-center justify-center px-8 py-7 max-stack:px-5 max-stack:py-5">
+        <div className="flex flex-col items-center gap-3 rounded-[14px] border border-line bg-surface p-10 text-center">
+          <Rocket size={28} strokeWidth={2} className="text-muted" />
+          <p className="font-mono text-[15px] text-ink">
+            {loading ? "Loading site…" : "Site not found."}
+          </p>
+        </div>
+      </div>
     );
   }
 
@@ -107,7 +111,6 @@ export default function SiteDetailPage() {
   }
 
   async function deleteCurrentSite() {
-    if (!window.confirm(`Delete ${site.name}? This removes the site, uploaded files, settings, and analytics.`)) return;
     setBusy(true);
     clearNotice();
     try {

@@ -1,11 +1,13 @@
-import { LockKeyhole, Rocket } from "lucide-react";
+import { Lock, Rocket } from "lucide-react";
 import { PreviewAssetList } from "../upload/PreviewAssetList";
 import { UploadBox } from "../upload/UploadBox";
 import { titleFromFile, type PreviewAsset } from "../../lib/upload";
 import { AccessSettingsFields } from "./AccessSettingsFields";
-import { Eyebrow } from "../ui/Eyebrow";
-import { Panel } from "../ui/Panel";
-import { Button } from "../ui/Button";
+import { Eyebrow } from "../ui/eyebrow";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export function NewSiteForm({
   file,
@@ -33,48 +35,63 @@ export function NewSiteForm({
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }) {
   return (
-    <form
-      onSubmit={onSubmit}
-      className="grid grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)] gap-6 pt-[26px] max-stack:grid-cols-1"
-    >
-      <Panel tone="strong" className="[&_h1]:text-[clamp(2.2rem,5vw,5rem)]">
-        <Eyebrow>New site</Eyebrow>
-        <h1>Upload assets first.</h1>
-        <p className="text-[0.92rem] leading-normal text-hint">After upload, you can keep the suggested name and slug or edit them before publishing.</p>
-        <UploadBox file={file} dragActive={dragActive} onChooseFile={onChooseFile} onDrag={onDrag} label="Drop HTML or ZIP here" />
-        {file && (
-          <div className="mt-3.5 grid gap-1 border-2 border-ink bg-lime px-3.5 py-3">
-            <strong>{file.name} is ready.</strong>
-            <span className="text-[0.9rem] font-extrabold text-label">
-              {assets.length} {assets.length === 1 ? "file" : "files"} found. Review the list, then publish.
-            </span>
-          </div>
-        )}
-        {assets.length > 0 && <PreviewAssetList assets={assets} />}
-      </Panel>
-      <Panel className="self-start">
-        <h2>Publish details</h2>
-        <label>
-          Name optional
-          <input value={name} onChange={(event) => onName(event.currentTarget.value)} placeholder={file ? titleFromFile(file.name) : "Filled from upload"} />
-        </label>
-        <label>
-          Slug
-          <input value={slug} onChange={(event) => onSlug(event.currentTarget.value)} placeholder="auto-generated" />
-        </label>
-        <p className="border-2 border-ink bg-sky-soft p-2.5 text-[0.92rem] font-[850] leading-normal text-hint">
-          Public URL preview: /s/{slug || "generated-slug"}/
+    <form onSubmit={onSubmit}>
+      <header className="border-b border-line px-8 py-7 max-stack:px-5 max-stack:py-5">
+        <Eyebrow>new site</Eyebrow>
+        <h1 className="font-mono text-[44px] leading-none font-semibold tracking-[-0.035em] max-stack:text-[34px]">
+          Upload assets first
+        </h1>
+        <p className="mt-2.5 text-[15px] text-muted">
+          Keep the suggested name and slug, or edit them before publishing.
         </p>
-      </Panel>
-      <Panel tone="strong">
-        <h2>
-          <LockKeyhole size={20} /> Access and expiry
-        </h2>
-        <AccessSettingsFields showSubmit={false} />
-        <Button disabled={busy || !file} type="submit">
-          <Rocket size={18} /> Create site and upload
-        </Button>
-      </Panel>
+      </header>
+      <div className="grid grid-cols-[1fr_380px] gap-6 px-8 py-7 max-stack:grid-cols-1 max-stack:px-5 max-stack:py-5">
+        <div className="min-h-[420px]">
+          <UploadBox file={file} dragActive={dragActive} onChooseFile={onChooseFile} onDrag={onDrag} label="Drop HTML or ZIP here" />
+          {assets.length > 0 && <PreviewAssetList assets={assets} />}
+        </div>
+        <div className="flex flex-col gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Publish details</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3.5">
+              <div className="flex flex-col gap-1.5">
+                <Label className="font-mono text-[11px] uppercase text-muted">name (optional)</Label>
+                <Input
+                  value={name}
+                  onChange={(event) => onName(event.currentTarget.value)}
+                  placeholder={file ? titleFromFile(file.name) : "Filled from upload"}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="font-mono text-[11px] uppercase text-muted">slug</Label>
+                <Input
+                  mono
+                  value={slug}
+                  onChange={(event) => onSlug(event.currentTarget.value)}
+                  placeholder="auto-generated"
+                />
+              </div>
+              <div className="rounded-[9px] border border-accent-soft bg-accent-soft px-3.5 py-2.5 font-mono text-[13px] text-accent">
+                → /s/{slug || "generated-slug"}/
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex-row items-center gap-2">
+              <Lock size={16} strokeWidth={2} className="text-accent" />
+              <CardTitle>Access & expiry</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AccessSettingsFields showSubmit={false} />
+            </CardContent>
+          </Card>
+          <Button disabled={busy || !file} type="submit" variant="default" className="w-full">
+            <Rocket size={16} strokeWidth={2} /> Create site & upload
+          </Button>
+        </div>
+      </div>
     </form>
   );
 }

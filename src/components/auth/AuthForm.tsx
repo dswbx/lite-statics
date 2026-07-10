@@ -1,10 +1,11 @@
 import { ShieldCheck } from "lucide-react";
-import { Link } from "wouter";
 import type { Notice } from "../../shared/notice";
-import { Button } from "../ui/Button";
-import { Eyebrow } from "../ui/Eyebrow";
-import { Notice as NoticeBanner } from "../ui/Notice";
-import { Panel } from "../ui/Panel";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsIndicator, TabsList, TabsTab } from "@/components/ui/tabs";
 
 export type AuthMode = "signin" | "signup";
 
@@ -22,48 +23,63 @@ export function AuthForm({
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }) {
   return (
-    <>
-      <Link href="/" className="inline-flex min-h-[42px] items-center justify-center gap-2 bg-transparent px-0 font-serif text-[1.35rem] font-black text-ink no-underline">
-        Statics
-      </Link>
-      <Panel as="form" onSubmit={onSubmit} className="w-full max-w-[520px] p-[26px] [&_h1]:text-[clamp(2rem,5vw,3.7rem)]">
-        <Eyebrow>{mode === "signup" ? "Create account" : "Welcome back"}</Eyebrow>
-        <h1>{mode === "signup" ? "Sign up before uploading." : "Sign in to manage sites."}</h1>
-        <div className="mb-[18px] grid grid-cols-2 gap-2">
-          <label className="mb-0 flex items-center gap-2 border-2 border-ink bg-cream p-2.5">
-            <input
-              className="min-h-0 w-auto"
-              type="radio"
-              name="mode"
-              checked={mode === "signup"}
-              onChange={() => setMode("signup")}
-            />{" "}
-            Sign up
-          </label>
-          <label className="mb-0 flex items-center gap-2 border-2 border-ink bg-cream p-2.5">
-            <input
-              className="min-h-0 w-auto"
-              type="radio"
-              name="mode"
-              checked={mode === "signin"}
-              onChange={() => setMode("signin")}
-            />{" "}
-            Sign in
-          </label>
+    <form onSubmit={onSubmit}>
+      <Eyebrow className="mb-3">
+        {mode === "signup" ? "create account" : "welcome back"}
+      </Eyebrow>
+      <h1 className="font-mono text-[38px] font-semibold tracking-[-0.035em] mb-7">
+        {mode === "signup"
+          ? "Sign up before uploading."
+          : "Sign in to your account."}
+      </h1>
+
+      <Tabs
+        value={mode}
+        onValueChange={(value) => setMode(value as AuthMode)}
+        className="mb-6"
+      >
+        <TabsList className="rounded-[10px] bg-surface2 p-1">
+          <TabsIndicator />
+          <TabsTab value="signup">Sign up</TabsTab>
+          <TabsTab value="signin">Sign in</TabsTab>
+        </TabsList>
+      </Tabs>
+
+      <div className="grid gap-4">
+        <div className="grid gap-1.5">
+          <Label htmlFor="auth-email">Email</Label>
+          <Input
+            id="auth-email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            required
+          />
         </div>
-        <label>
-          Email
-          <input name="email" type="email" placeholder="you@example.com" required />
-        </label>
-        <label>
-          Password
-          <input name="password" type="password" minLength={8} placeholder="At least 8 characters" required />
-        </label>
-        <Button disabled={busy} type="submit">
-          <ShieldCheck size={18} /> {mode === "signup" ? "Create account" : "Sign in"}
-        </Button>
-        {notice && <NoticeBanner inline tone={notice.tone}>{notice.text}</NoticeBanner>}
-      </Panel>
-    </>
+        <div className="grid gap-1.5">
+          <Label htmlFor="auth-password">Password</Label>
+          <Input
+            id="auth-password"
+            name="password"
+            type="password"
+            mono
+            minLength={8}
+            placeholder="at least 8 characters"
+            required
+          />
+        </div>
+      </div>
+
+      <Button disabled={busy} type="submit" className="w-full mt-7">
+        <ShieldCheck size={18} strokeWidth={2} />
+        {mode === "signup" ? "Create account" : "Sign in"}
+      </Button>
+
+      {notice && (
+        <Alert tone={notice.tone === "bad" ? "danger" : "info"} className="mt-4">
+          {notice.text}
+        </Alert>
+      )}
+    </form>
   );
 }

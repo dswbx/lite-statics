@@ -13,9 +13,11 @@ export default function DashboardHomePage() {
 
   if (loading) {
     return (
-      <section className="grid min-h-[340px] place-items-center content-center gap-3 border-2 border-ink bg-surface p-7 text-center shadow-brutal">
-        <h2>Loading sites...</h2>
-      </section>
+      <div className="px-8 py-7 max-stack:px-5 max-stack:py-5">
+        <div className="grid min-h-[340px] place-items-center rounded-[14px] border border-line bg-surface p-7 text-center">
+          <p className="font-mono text-[13px] text-muted">Loading sites…</p>
+        </div>
+      </div>
     );
   }
 
