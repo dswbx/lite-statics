@@ -3,7 +3,6 @@ import { HTTPException } from "hono/http-exception";
 import type { AppEnv, FetchExecutionContext } from "./client";
 import type { Env } from "./env";
 import { rateLimit } from "./middleware/rate-limit";
-import { restSchemaGuard } from "./middleware/rest-schema-guard";
 import publicRoutes from "./routes/public";
 import sitesRoutes from "./routes/sites";
 import { getLiteApp } from "./supalite";
@@ -43,9 +42,6 @@ export function createApp() {
    // @todo: add supalite to context, and use as a middleware
    app.all("/auth/v1", (c) => getLiteApp(c.env).fetch(c.req.raw));
    app.all("/auth/v1/*", (c) => getLiteApp(c.env).fetch(c.req.raw));
-   // Restrict the data API to the public schema (blocks internal auth.* tables).
-   app.use("/rest/v1", restSchemaGuard);
-   app.use("/rest/v1/*", restSchemaGuard);
    app.all("/rest/v1", (c) => getLiteApp(c.env).fetch(c.req.raw));
    app.all("/rest/v1/*", (c) => getLiteApp(c.env).fetch(c.req.raw));
 
