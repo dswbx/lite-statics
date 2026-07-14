@@ -6,7 +6,7 @@
       "name": "static-host-dynamic-workers",
       "dependencies": {
         "@base-ui/react": "^1.6.0",
-        "@supabase/lite": "next",
+        "@supabase/lite": "0.7.1-next.1",
         "@supabase/supabase-js": "^2.97.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
@@ -370,7 +370,7 @@
 
     "@supabase/functions-js": ["@supabase/functions-js@2.110.1", "", { "dependencies": { "tslib": "2.8.1" } }, "sha512-Pm9HD9Qth6zQO0aOGZ3DxYb6QlCzrkTkP6eUEOvhTlbvcvYRDSCZXIJ5dkDLpqxD+gdrXfWDFOpU9BpRKYjsIQ=="],
 
-    "@supabase/lite": ["@supabase/lite@0.6.2-next.4", "", { "dependencies": { "@commander-js/extra-typings": "^14.0.0", "@electric-sql/pglite": "0.4.5", "@hono/node-server": "^1.19.9", "@sentry/node": "^10.51.0", "@supabase/pg-delta": "1.0.0-alpha.10", "@vercel/detect-agent": "^1.2.3", "bcryptjs": "^3.0.3", "chokidar": "^5.0.0", "commander": "^14.0.3", "dotenv": "^17.3.1", "kysely": "^0.28.11", "kysely-generic-sqlite": "^1.2.1", "kysely-postgres-js": "^3.0.0", "libpg-query": "17.7.3", "pgsql-deparser": "17.18.3", "pgsql-parser": "17.9.15", "uuid": "^13.0.0" }, "peerDependencies": { "@libsql/client": "^0.17.4", "@supabase/supabase-js": ">=2.90.0", "postgres": "^3.4.8", "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0" }, "optionalPeers": ["@libsql/client", "postgres", "vite"], "bin": { "lite": "dist/cli/index.js" } }, "sha512-/hpB9KQvfEo1ER2SbDP7VqzHPako3RueDjc+EP77mjh4XvbUluwDdXrpFBXRXncrRerXSEthK2ITKYvn0wv4sA=="],
+    "@supabase/lite": ["@supabase/lite@0.7.1-next.1", "", { "dependencies": { "@commander-js/extra-typings": "^14.0.0", "@electric-sql/pglite": "0.4.5", "@hono/node-server": "^1.19.9", "@sentry/node": "^10.51.0", "@supabase/pg-delta": "1.0.0-alpha.10", "@vercel/detect-agent": "^1.2.3", "bcryptjs": "^3.0.3", "chokidar": "^5.0.0", "commander": "^14.0.3", "dotenv": "^17.3.1", "kysely": "^0.28.11", "kysely-generic-sqlite": "^1.2.1", "kysely-postgres-js": "^3.0.0", "libpg-query": "17.7.3", "pgsql-deparser": "17.18.3", "pgsql-parser": "17.9.15", "uuid": "^13.0.0" }, "peerDependencies": { "@libsql/client": "^0.17.4", "@supabase/supabase-js": ">=2.90.0", "postgres": "^3.4.8", "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0" }, "optionalPeers": ["@libsql/client", "postgres", "vite"], "bin": { "lite": "dist/cli/index.js" } }, "sha512-Nf8oSNO3TK954kW8LDw0p4bX45qNY10RN3quJIr4CiMHlgY6fOcI1Mb30PGqqUxjJbydJV6KxWTYCEKVShYvkA=="],
 
     "@supabase/pg-delta": ["@supabase/pg-delta@1.0.0-alpha.10", "", { "dependencies": { "@stricli/core": "^1.2.4", "@supabase/pg-topo": "^1.0.0-alpha.1", "@ts-safeql/sql-tag": "^0.2.0", "chalk": "^5.6.2", "debug": "^4.3.7", "pg": "^8.17.2", "zod": "^4.2.1" }, "bin": { "pgdelta": "dist/cli/bin/cli.js" } }, "sha512-2rE0APqgEavQxKpm9TATYvXADO+v4CP+dGGFSFFxnlz2D9b+Qme5+TZLstKDdVxqeIMYK19wqfSB4iSKrLiVjg=="],
 

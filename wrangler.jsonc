@@ -50,7 +50,11 @@
          "simple": { "limit": 60, "period": 60 }
       }
    ],
+   "send_email": [{ "name": "EMAIL", "remote": true }],
    "vars": {
-      "ACCESS_COOKIE_NAME": "static_host_access"
+      "ACCESS_COOKIE_NAME": "static_host_access",
+      "SITE_URL": "https://statics.supalite.run",
+      "EMAIL_FROM_ADDRESS": "noreply@supalite.run",
+      "EMAIL_FROM_NAME": "Statics"
    }
 }

@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useLocation } from "wouter";
+import { consumeAuthHashSession } from "../lib/auth-hash-session";
 import { resolveAuthSession } from "../lib/resolve-auth-session";
 import { supabase } from "../lib/supabase";
 
@@ -16,6 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [sessionEmail, setSessionEmail] = useState("");
   const [userId, setUserId] = useState("");
   const [authReady, setAuthReady] = useState(false);
+  const [, navigate] = useLocation();
 
   const syncSession = useCallback((session: { user: { id: string; email?: string | null } } | null) => {
     setSessionEmail(session?.user.email ?? "");
@@ -35,6 +38,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     return resolved.access_token;
   }, [syncSession]);
+
+  useEffect(() => {
+    void consumeAuthHashSession()
+      .then((result) => {
+        if (!result) return;
+        if (result.type === "recovery") {
+          navigate("/auth/reset-password", { replace: true });
+          return;
+        }
+        navigate("/dashboard", { replace: true });
+      })
+      .catch(() => undefined);
+  }, [navigate]);
 
   useEffect(() => {
     const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {

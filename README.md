@@ -78,3 +78,5 @@ Vite, React, Tailwind, Supabase Lite, Cloudflare Workers, D1, and R2.
 ## Todo
 
 - [ ] ensure proper caching for static serve
+- [x] add email sending
+- [ ] use supalite storage for site files

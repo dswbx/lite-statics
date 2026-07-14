@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { useLocation, useSearch } from "wouter";
-import { AuthForm } from "../components/auth/AuthForm";
+import { AuthForm, type AuthMode } from "../components/auth/AuthForm";
 import { useNotice } from "../context/NoticeContext";
 import { supabase } from "../lib/supabase";
 
+function modeFromSearch(search: string): AuthMode {
+   const mode = new URLSearchParams(search).get("mode");
+   if (mode === "signin" || mode === "forgot") return mode;
+   return "signup";
+}
+
 export default function AuthPage() {
    const search = useSearch();
-   const initialMode =
-      new URLSearchParams(search).get("mode") === "signin"
-         ? "signin"
-         : "signup";
-   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
+   const [mode, setMode] = useState<AuthMode>(() => modeFromSearch(search));
+   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
    const [busy, setBusy] = useState(false);
    const { notice, setNotice, clearNotice } = useNotice();
    const [, navigate] = useLocation();
@@ -22,15 +25,34 @@ export default function AuthPage() {
          .trim()
          .toLowerCase();
       const password = String(form.get("password") ?? "");
-      if (!email || !password) return;
+      if (!email) return;
+
       setBusy(true);
       clearNotice();
+
       try {
-         const result =
-            mode === "signup"
-               ? await supabase.auth.signUp({ email, password })
-               : await supabase.auth.signInWithPassword({ email, password });
-         if (result.error) throw new Error(result.error.message);
+         if (mode === "forgot") {
+            const { error } = await supabase.auth.resetPasswordForEmail(email);
+            if (error) throw new Error(error.message);
+            setPendingEmail(email);
+            return;
+         }
+
+         if (!password) return;
+
+         if (mode === "signup") {
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            if (error) throw new Error(error.message);
+            if (data.session) {
+               navigate("/dashboard", { replace: true });
+               return;
+            }
+            setPendingEmail(email);
+            return;
+         }
+
+         const { error } = await supabase.auth.signInWithPassword({ email, password });
+         if (error) throw new Error(error.message);
          navigate("/dashboard", { replace: true });
       } catch (error) {
          setNotice({
@@ -39,6 +61,46 @@ export default function AuthPage() {
                error instanceof Error
                   ? error.message
                   : "Authentication failed.",
+         });
+      } finally {
+         setBusy(false);
+      }
+   }
+
+   async function verifyCode(code: string) {
+      if (!pendingEmail) return;
+
+      setBusy(true);
+      clearNotice();
+
+      try {
+         const type = mode === "forgot" ? "recovery" : "signup";
+
+         await Promise.all([
+            new Promise((resolve) => setTimeout(resolve, 800)),
+            (async () => {
+               const { error } = await supabase.auth.verifyOtp({
+                  email: pendingEmail,
+                  token: code,
+                  type,
+               });
+               if (error) throw new Error(error.message);
+
+               if (mode === "forgot") {
+                  navigate("/auth/reset-password", { replace: true });
+                  return;
+               }
+
+               navigate("/dashboard", { replace: true });
+            })(),
+         ]);
+      } catch (error) {
+         setNotice({
+            tone: "bad",
+            text:
+               error instanceof Error
+                  ? error.message
+                  : "Could not verify the code.",
          });
       } finally {
          setBusy(false);
@@ -75,10 +137,16 @@ export default function AuthPage() {
          <div className="p-14 flex flex-col justify-center max-stack:p-6">
             <AuthForm
                mode={mode}
-               setMode={setMode}
+               setMode={(nextMode) => {
+                  setPendingEmail(null);
+                  clearNotice();
+                  setMode(nextMode);
+               }}
                busy={busy}
                notice={notice}
+               pendingEmail={pendingEmail}
                onSubmit={submitAuth}
+               onVerifyCode={verifyCode}
             />
          </div>
       </div>

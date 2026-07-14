@@ -5,6 +5,8 @@ import { NoticeProvider } from "./context/NoticeContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import LandingPage from "./routes/_index";
 import AuthPage from "./routes/auth";
+import AuthCallbackPage from "./routes/auth.callback";
+import ResetPasswordPage from "./routes/auth.reset-password";
 import DashboardLayout from "./routes/dashboard";
 import DashboardHomePage from "./routes/dashboard._index";
 import NewSitePage from "./routes/dashboard.sites.new";
@@ -29,6 +31,8 @@ export function AppRoutes() {
             <Switch>
               <Route path="/" component={LandingPage} />
               <Route path="/auth" component={AuthPage} />
+              <Route path="/auth/callback" component={AuthCallbackPage} />
+              <Route path="/auth/reset-password" component={ResetPasswordPage} />
               <Route path="/dashboard" component={withDashboard(DashboardHomePage)} />
               <Route path="/dashboard/sites/new" component={withDashboard(NewSitePage)} />
               <Route path="/dashboard/sites/:siteId" component={withDashboard(SiteDetailPage)} />

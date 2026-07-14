@@ -60,16 +60,18 @@ export function NewSiteForm({
             </CardHeader>
             <CardContent className="flex flex-col gap-3.5">
               <div className="flex flex-col gap-1.5">
-                <Label className="font-mono text-[11px] uppercase text-muted">name (optional)</Label>
+                <Label htmlFor="site-name" className="font-mono text-[11px] uppercase text-muted">name (optional)</Label>
                 <Input
+                  id="site-name"
                   value={name}
                   onChange={(event) => onName(event.currentTarget.value)}
                   placeholder={file ? titleFromFile(file.name) : "Filled from upload"}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="font-mono text-[11px] uppercase text-muted">slug</Label>
+                <Label htmlFor="site-slug" className="font-mono text-[11px] uppercase text-muted">slug</Label>
                 <Input
+                  id="site-slug"
                   mono
                   value={slug}
                   onChange={(event) => onSlug(event.currentTarget.value)}

@@ -24,7 +24,7 @@
    },
    "dependencies": {
       "@base-ui/react": "^1.6.0",
-      "@supabase/lite": "next",
+      "@supabase/lite": "0.7.1-next.1",
       "@supabase/supabase-js": "^2.97.0",
       "class-variance-authority": "^0.7.1",
       "clsx": "^2.1.1",

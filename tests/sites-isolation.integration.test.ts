@@ -1,11 +1,16 @@
 import { createTestHarness } from "wrangler";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { signUpAndConfirm } from "./helpers/auth";
 
 const apikey = "local-dev-key";
+const testWorker = {
+  configPath: "./wrangler.jsonc",
+  vars: { EMAIL_FROM_ADDRESS: "" },
+};
 
 describe("sites isolation integration", () => {
   const server = createTestHarness({
-    workers: [{ configPath: "./wrangler.jsonc" }],
+    workers: [testWorker],
   });
 
   beforeAll(async () => {
@@ -19,16 +24,14 @@ describe("sites isolation integration", () => {
 
   async function signUp() {
     const email = `isolation-${crypto.randomUUID()}@example.com`;
-    const response = await server.fetch("http://example.com/auth/v1/signup", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        apikey,
-      },
-      body: JSON.stringify({ email, password: "password12345" }),
-    });
-    expect(response.status).toBe(200);
-    return (await response.json()) as { access_token: string; user: { id: string; email: string } };
+    const env = await server.getWorker().getEnv();
+    const { confirm } = await signUpAndConfirm(
+      env.DB,
+      server.fetch.bind(server),
+      email,
+      "password12345",
+    );
+    return confirm.body;
   }
 
   async function createSite(session: { access_token: string; user: { id: string } }, name: string) {

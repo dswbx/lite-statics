@@ -1,12 +1,17 @@
 import { createTestHarness } from "wrangler";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { hashPassword } from "../src/lib/password";
+import { signUpAndConfirm } from "./helpers/auth";
 
 const apikey = "local-dev-key";
+const testWorker = {
+  configPath: "./wrangler.jsonc",
+  vars: { EMAIL_FROM_ADDRESS: "" },
+};
 
 describe("password-protected site access", () => {
   const server = createTestHarness({
-    workers: [{ configPath: "./wrangler.jsonc" }],
+    workers: [testWorker],
   });
 
   beforeAll(async () => {
@@ -20,16 +25,14 @@ describe("password-protected site access", () => {
 
   async function signUp() {
     const email = `password-site-${crypto.randomUUID()}@example.com`;
-    const response = await server.fetch("http://example.com/auth/v1/signup", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        apikey,
-      },
-      body: JSON.stringify({ email, password: "password12345" }),
-    });
-    expect(response.status).toBe(200);
-    return (await response.json()) as { access_token: string; user: { id: string } };
+    const env = await server.getWorker().getEnv();
+    const { confirm } = await signUpAndConfirm(
+      env.DB,
+      server.fetch.bind(server),
+      email,
+      "password12345",
+    );
+    return confirm.body;
   }
 
   it("accepts the dashboard password hash and sets a non-secure cookie over http", async () => {
