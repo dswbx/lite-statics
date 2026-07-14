@@ -43,6 +43,8 @@ describe("rest schema guard integration", () => {
       "auth.sessions",
       "auth.refresh_tokens",
       "auth.identities",
+      "storage.objects",
+      "storage.buckets",
     ]) {
       const response = await server.fetch(`http://example.com/rest/v1/${table}?select=*`, {
         headers: { apikey },

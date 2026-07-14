@@ -48,6 +48,8 @@ export function createApp() {
    app.use("/rest/v1/*", restSchemaGuard);
    app.all("/rest/v1", (c) => getLiteApp(c.env).fetch(c.req.raw));
    app.all("/rest/v1/*", (c) => getLiteApp(c.env).fetch(c.req.raw));
+   app.all("/storage/v1", (c) => getLiteApp(c.env).fetch(c.req.raw));
+   app.all("/storage/v1/*", (c) => getLiteApp(c.env).fetch(c.req.raw));
 
    app.route("/api/sites", sitesRoutes);
    app.route("/s", publicRoutes);

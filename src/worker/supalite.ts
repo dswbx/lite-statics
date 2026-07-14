@@ -1,8 +1,12 @@
-import { App, InMemoryEmailDriver } from "@supabase/lite";
+import { App, InMemoryEmailDriver, setExperimental } from "@supabase/lite";
 import { d1 } from "@supabase/lite/workerd";
 import type { Env } from "./env";
 import deparse from "./deparse.generated.json";
 import { createCloudflareEmailDriver } from "./email";
+import { SITE_ASSETS_BUCKET } from "./storage/constants";
+import { R2StorageAdapter } from "./storage/r2-adapter";
+
+setExperimental("storage", true);
 
 function liteAppCacheKey(env: Env) {
   return [env.JWT_SECRET, env.SITE_URL ?? "", env.EMAIL_FROM_ADDRESS ?? ""].join(":");
@@ -33,9 +37,17 @@ export function createLiteApp(env: Env): App {
         enable_confirmations: true,
       },
     },
+    storage: {
+      enabled: true,
+      file_size_limit: "10MiB",
+      buckets: {
+        [SITE_ASSETS_BUCKET]: { public: false },
+      },
+    },
     options: { drivers: { email: emailDriver } },
   });
 
+  liteApp._storageAdapter = new R2StorageAdapter(env.ASSET_BUCKET) as NonNullable<App["_storageAdapter"]>;
   return liteApp;
 }
 

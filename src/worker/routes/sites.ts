@@ -54,7 +54,7 @@ export default new Hono<AppEnv>()
 
     const serviceClient = await createServiceClient(c.get("appFetch"), c.env, c.executionCtx);
     try {
-      const result = await deploySite(c.env, serviceClient, siteId, file);
+      const result = await deploySite(serviceClient, siteId, file);
       return c.json(deployResponseBody(result), 201);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Deploy failed.";
@@ -72,7 +72,7 @@ export default new Hono<AppEnv>()
     if (ownershipError || !ownedSite) return c.json({ error: "Site not found" }, 404);
 
     const serviceClient = await createServiceClient(c.get("appFetch"), c.env, c.executionCtx);
-    await deleteSiteAssets(c.env, siteId);
+    await deleteSiteAssets(serviceClient, siteId);
     const { error: deleteError } = await serviceClient.from("sites").delete().eq("id", siteId);
     if (deleteError) return c.json({ error: deleteError.message }, 500);
     return c.body(null, 204);

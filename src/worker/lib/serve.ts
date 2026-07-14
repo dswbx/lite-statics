@@ -2,6 +2,7 @@ import { handleAssetRequest, type AssetManifest, type AssetStorage } from "./ass
 import type { Env } from "../env";
 import type { SiteRow } from "../../shared/mappers";
 import type { StoredAssetManifest } from "../../shared/types";
+import { R2StorageAdapter } from "../storage/r2-adapter";
 import { assetKey } from "./storage";
 
 export function parseManifestJson(manifestJson: string | null): StoredAssetManifest | null {
@@ -9,7 +10,7 @@ export function parseManifestJson(manifestJson: string | null): StoredAssetManif
   return JSON.parse(manifestJson) as StoredAssetManifest;
 }
 
-export async function serveSiteFromR2(
+export async function serveSiteAssets(
   env: Env,
   site: SiteRow,
   request: Request,
@@ -20,11 +21,9 @@ export async function serveSiteFromR2(
 
   const assetRequest = rewriteAssetRequest(request, assetPathname);
   const bundlerManifest = toWorkerBundlerManifest(manifest);
+  const adapter = new R2StorageAdapter(env.ASSET_BUCKET);
   const storage: AssetStorage = {
-    get: async (pathname: string) => {
-      const object = await env.ASSET_BUCKET.get(assetKey(site.id, pathname));
-      return object ? object.arrayBuffer() : null;
-    },
+    get: async (pathname: string) => adapter.readBytes(assetKey(site.id, pathname)),
   };
 
   const response = await handleAssetRequest(assetRequest, bundlerManifest, storage, {
