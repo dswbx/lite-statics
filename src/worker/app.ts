@@ -43,7 +43,8 @@ export function createApp() {
    // @todo: add supalite to context, and use as a middleware
    app.all("/auth/v1", (c) => getLiteApp(c.env).fetch(c.req.raw));
    app.all("/auth/v1/*", (c) => getLiteApp(c.env).fetch(c.req.raw));
-   // Restrict the data API to the public schema (blocks internal auth.* tables).
+
+   // Restrict the data API to the public schema (blocks internal storage.* tables).
    app.use("/rest/v1", restSchemaGuard);
    app.use("/rest/v1/*", restSchemaGuard);
    app.all("/rest/v1", (c) => getLiteApp(c.env).fetch(c.req.raw));

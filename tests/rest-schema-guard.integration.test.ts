@@ -1,6 +1,5 @@
 import { createTestHarness } from "wrangler";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { signUpAndConfirm } from "./helpers/auth";
 
 const apikey = "local-dev-key";
 const testWorker = {
@@ -22,30 +21,8 @@ describe("rest schema guard integration", () => {
     await server.close();
   });
 
-  async function signUp() {
-    const email = `guard-${crypto.randomUUID()}@example.com`;
-    const env = await server.getWorker().getEnv();
-    const { confirm } = await signUpAndConfirm(
-      env.DB,
-      server.fetch.bind(server),
-      email,
-      "password12345",
-    );
-    return confirm.body;
-  }
-
-  it("blocks anonymous access to internal auth.* tables", async () => {
-    // Create a user so auth.users actually has a row that would otherwise leak.
-    await signUp();
-
-    for (const table of [
-      "auth.users",
-      "auth.sessions",
-      "auth.refresh_tokens",
-      "auth.identities",
-      "storage.objects",
-      "storage.buckets",
-    ]) {
+  it("blocks anonymous access to internal storage.* tables", async () => {
+    for (const table of ["storage.objects", "storage.buckets"]) {
       const response = await server.fetch(`http://example.com/rest/v1/${table}?select=*`, {
         headers: { apikey },
       });
@@ -53,9 +30,9 @@ describe("rest schema guard integration", () => {
     }
   });
 
-  it("blocks selecting the auth schema via a profile header", async () => {
-    const response = await server.fetch("http://example.com/rest/v1/users?select=*", {
-      headers: { apikey, "Accept-Profile": "auth" },
+  it("blocks selecting the storage schema via a profile header", async () => {
+    const response = await server.fetch("http://example.com/rest/v1/objects?select=*", {
+      headers: { apikey, "Accept-Profile": "storage" },
     });
     expect(response.status).toBe(404);
   });

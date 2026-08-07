@@ -1,8 +1,7 @@
-import { getAuthSchemaSql, type SqliteConnection } from "@supabase/lite";
-import { createConnection } from "@supabase/lite/sqlite";
+import { getAuthSchemaSql } from "@supabase/lite";
 import { spawn } from "node:child_process";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -11,9 +10,9 @@ const outputDir = join(root, ".wrangler", "migrations");
 const schemaPath = join(root, "supabase", "schemas", "schema.sql");
 const deparseOutputPath = join(root, "src", "worker", "deparse.generated.json");
 
-function translatePostgresToSqlite(sql: string): Promise<string> {
+function runLite(args: string[], stdin?: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const proc = spawn("bun", ["lite", "db", "translate"], {
+    const proc = spawn("bun", ["lite", ...args], {
       cwd: root,
       stdio: ["pipe", "pipe", "pipe"],
     });
@@ -32,17 +31,25 @@ function translatePostgresToSqlite(sql: string): Promise<string> {
       if (exitCode !== 0) {
         reject(
           new Error(
-            stderr.trim() || `lite db translate failed with exit code ${exitCode}`,
+            stderr.trim() || `lite ${args.join(" ")} failed with exit code ${exitCode}`,
           ),
         );
         return;
       }
 
-      resolve(stdout.trimEnd() + "\n");
+      resolve(stdout);
     });
 
-    proc.stdin.end(sql);
+    if (stdin === undefined) {
+      proc.stdin.end();
+    } else {
+      proc.stdin.end(stdin);
+    }
   });
+}
+
+function translatePostgresToSqlite(sql: string): Promise<string> {
+  return runLite(["db", "translate"], sql).then((stdout) => stdout.trimEnd() + "\n");
 }
 
 let translatedAuthSchema: string | undefined;
@@ -93,17 +100,10 @@ for (const [index, file] of files.entries()) {
 // never sees the policies. Extract the registry here and hand it to the
 // connection at runtime (see src/worker/supalite.ts).
 const schemaSql = await readFile(schemaPath, "utf8");
-// createConnection's type varies by export condition (bun/node/workerd); pin it
-// to the base connection so `translateDdl` resolves regardless of resolver.
-const conn = createConnection() as unknown as SqliteConnection;
-const { rls } = await conn.translateDdl(schemaSql);
-
-// Persist supalite's own deparse payload rather than reshaping it: the worker
-// hands this straight back to the connection, which re-parses it (Set / Policy
-// reconstruction) via parseDeparseInfo. We only make it JSON-safe — Policy
-// instances already serialize through their toJSON; Sets/Maps need coercing.
-const toJsonSafe = (_key: string, value: unknown) =>
-  value instanceof Set ? [...value] : value instanceof Map ? Object.fromEntries(value) : value;
-
-await writeFile(deparseOutputPath, `${JSON.stringify({ rls }, toJsonSafe, 2)}\n`, "utf8");
-console.log(`generated src/worker/deparse.generated.json (${rls?.policies.length ?? 0} policies)`);
+await runLite(["db", "translate", "--deparse", "-o", deparseOutputPath], schemaSql);
+const deparse = JSON.parse(await readFile(deparseOutputPath, "utf8")) as {
+  rls?: { policies?: unknown[] };
+};
+console.log(
+  `generated ${relative(root, deparseOutputPath)} (${deparse.rls?.policies?.length ?? 0} policies)`,
+);

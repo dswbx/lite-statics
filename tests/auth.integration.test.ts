@@ -4,7 +4,7 @@ import { confirmUserEmail, signUpAndConfirm, signUpUser } from "./helpers/auth";
 
 const apikey = "local-dev-key";
 const testWorker = {
-  configPath: "./wrangler.jsonc",
+  configPath: "./wrangler.test.jsonc",
   vars: { EMAIL_FROM_ADDRESS: "" },
 };
 

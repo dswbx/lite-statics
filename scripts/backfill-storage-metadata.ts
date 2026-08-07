@@ -39,7 +39,7 @@ async function listSites(): Promise<Array<{ id: string; slug: string; manifest_j
   if (!response.ok) {
     throw new Error(`failed to list sites: ${response.status} ${await response.text()}`);
   }
-  return response.json();
+  return (await response.json()) as Array<{ id: string; slug: string; manifest_json: string | null }>;
 }
 
 async function ensureBucket(): Promise<void> {
