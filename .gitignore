@@ -5,3 +5,4 @@ dist
 .logs
 supabase/.temp
 .idea
+.dev.vars
