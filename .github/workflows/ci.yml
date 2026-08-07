@@ -24,4 +24,5 @@ jobs:
           EOF
       - run: bun run typecheck
       - run: bun run build
+      - run: bun run db:migration:generate
       - run: bun run test
