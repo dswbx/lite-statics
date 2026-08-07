@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const apikey = "local-dev-key";
 const testWorker = {
-  configPath: "./wrangler.jsonc",
+  configPath: "./wrangler.test.jsonc",
   vars: { EMAIL_FROM_ADDRESS: "" },
 };
 

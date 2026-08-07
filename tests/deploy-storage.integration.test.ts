@@ -5,7 +5,7 @@ import { SITE_ASSETS_BUCKET } from "../src/worker/storage/constants";
 
 const apikey = "local-dev-key";
 const testWorker = {
-  configPath: "./wrangler.jsonc",
+  configPath: "./wrangler.test.jsonc",
   vars: { EMAIL_FROM_ADDRESS: "", JWT_SECRET: "test-jwt-secret" },
 };
 
