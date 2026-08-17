@@ -2,7 +2,7 @@
 
 Static Harbor lets you publish a small static website from one HTML file or a ZIP file. You get a public link, can add a password, can set an expiry date, and can see simple visit counts.
 
-Your uploaded site files are stored in Cloudflare R2 under `{siteId}/...` in a single bucket. Site settings and analytics are stored in Cloudflare D1. The public site is served directly from the main Worker, which reads assets from R2.
+Your uploaded site files are stored in Cloudflare R2 under `{siteId}/...` in the `site-assets` SupaLite storage bucket. SupaLite tracks object metadata in D1 (`storage.buckets`, `storage.objects`); site settings and analytics live in the public schema. The public site is served from `/s/:slug/*`, which reads asset bytes through the same R2 binding used by SupaLite storage.
 
 ## How to Open It
 
@@ -78,6 +78,7 @@ The Google button appears only when both secrets are set (see `GET /auth/v1/sett
 - If port `5173` is busy, Vite will print the port it chose.
 - If `bun run dev` cannot start the Worker runtime, try `bun run worker:dev` as a fallback.
 - After schema changes, reset local D1 with `rm -rf .wrangler/state/v3/d1 && bun run db:migration:apply:local`.
+- Sites deployed before SupaLite storage was enabled keep serving from R2. Re-deploy a site or run `bun scripts/backfill-storage-metadata.ts` (with the dev server running) to register missing `storage.objects` rows.
 
 ## Testing
 
@@ -94,10 +95,10 @@ The end-to-end test signs up, creates a site, uploads an HTML file, opens the ge
 
 ## Stack
 
-Vite, React, Tailwind, Supabase Lite, Cloudflare Workers, D1, and R2.
+Vite, React, Tailwind, Supabase Lite (auth, REST, storage), Cloudflare Workers, D1, and R2.
 
 ## Todo
 
 - [ ] ensure proper caching for static serve
 - [x] add email sending
-- [ ] use supalite storage for site files
+- [x] use supalite storage for site files

@@ -4,7 +4,7 @@ import { decideAccess, inactivePage, passwordPage } from "../access";
 import { createServiceClient, type AppEnv } from "../client";
 import { viewTrackingJobFrom } from "../lib/analytics";
 import { getSiteBySlug } from "../lib/deploy";
-import { serveSiteFromR2 } from "../lib/serve";
+import { serveSiteAssets } from "../lib/serve";
 
 function parsePublicPath(pathname: string): { slug: string; assetPathname: string } | null {
   const parts = pathname.split("/").filter(Boolean);
@@ -26,7 +26,7 @@ async function serve(c: Context<AppEnv>) {
   if (decision.status === "inactive") return inactivePage(decision.reason);
   if (decision.status === "password-required") return passwordPage(site.slug);
 
-  const response = await serveSiteFromR2(c.env, site, c.req.raw, parsed.assetPathname);
+  const response = await serveSiteAssets(c.env, site, c.req.raw, parsed.assetPathname);
   const job = viewTrackingJobFrom(site.id, c.req.raw, parsed.assetPathname, response.status);
   c.executionCtx.waitUntil(c.env.VIEW_TRACKING_QUEUE.send(job));
   return response;

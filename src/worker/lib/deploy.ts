@@ -1,9 +1,22 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Env } from "../env";
 import { mapSite, type SiteRow } from "../../shared/mappers";
 import type { StoredAssetManifest } from "../../shared/types";
 import { normalizeUpload } from "../upload";
-import { assetKey } from "./storage";
+import { SITE_ASSETS_BUCKET } from "../storage/constants";
+import { assetKey, sitePrefix } from "./storage";
+
+async function ensureSiteAssetsBucket(client: SupabaseClient): Promise<void> {
+  const { data, error: listError } = await client.storage.listBuckets();
+  if (listError) throw new Error(listError.message);
+  if (data?.some((bucket) => bucket.id === SITE_ASSETS_BUCKET)) return;
+
+  const { error: createError } = await client.storage.createBucket(SITE_ASSETS_BUCKET, {
+    public: false,
+  });
+  if (createError && !createError.message.toLowerCase().includes("already exists")) {
+    throw new Error(createError.message);
+  }
+}
 
 export async function getSiteBySlug(client: SupabaseClient, slug: string): Promise<SiteRow | null> {
   const { data: site, error } = await client.from("sites").select("*").eq("slug", slug).maybeSingle<SiteRow>();
@@ -12,7 +25,6 @@ export async function getSiteBySlug(client: SupabaseClient, slug: string): Promi
 }
 
 export async function deploySite(
-  env: Env,
   client: SupabaseClient,
   siteId: string,
   file: File,
@@ -22,17 +34,21 @@ export async function deploySite(
 
   const normalized = await normalizeUpload(file);
   const previousManifest = parseManifestJson(site.manifest_json);
+  await ensureSiteAssetsBucket(client);
+  const bucket = client.storage.from(SITE_ASSETS_BUCKET);
 
   await Promise.all(
-    normalized.assets.map((asset) =>
-      env.ASSET_BUCKET.put(assetKey(siteId, asset.pathname), asset.bytes, {
-        httpMetadata: { contentType: asset.contentType },
-      }),
-    ),
+    normalized.assets.map(async (asset) => {
+      const { error } = await bucket.upload(assetKey(siteId, asset.pathname), asset.bytes, {
+        contentType: asset.contentType,
+        upsert: true,
+      });
+      if (error) throw new Error(error.message);
+    }),
   );
 
   if (previousManifest) {
-    await deleteStaleAssets(env, siteId, previousManifest, normalized.manifest);
+    await deleteStaleAssets(client, siteId, previousManifest, normalized.manifest);
   }
 
   const now = new Date().toISOString();
@@ -56,10 +72,12 @@ export async function deploySite(
   };
 }
 
-export async function deleteSiteAssets(env: Env, siteId: string): Promise<void> {
-  const listed = await env.ASSET_BUCKET.list({ prefix: `${siteId}/` });
-  if (listed.objects.length === 0) return;
-  await Promise.all(listed.objects.map((object) => env.ASSET_BUCKET.delete(object.key)));
+export async function deleteSiteAssets(client: SupabaseClient, siteId: string): Promise<void> {
+  const paths = await listStoredObjectPaths(client, siteId);
+  if (paths.length === 0) return;
+
+  const { error } = await client.storage.from(SITE_ASSETS_BUCKET).remove(paths);
+  if (error) throw new Error(error.message);
 }
 
 export function deployResponseBody(result: { site: SiteRow; publicUrl: string }) {
@@ -75,12 +93,45 @@ function parseManifestJson(manifestJson: string | null): StoredAssetManifest | n
 }
 
 async function deleteStaleAssets(
-  env: Env,
+  client: SupabaseClient,
   siteId: string,
   previous: StoredAssetManifest,
   next: StoredAssetManifest,
 ): Promise<void> {
   const nextPaths = new Set(Object.keys(next));
-  const stalePaths = Object.keys(previous).filter((pathname) => !nextPaths.has(pathname));
-  await Promise.all(stalePaths.map((pathname) => env.ASSET_BUCKET.delete(assetKey(siteId, pathname))));
+  const stalePaths = Object.keys(previous)
+    .filter((pathname) => !nextPaths.has(pathname))
+    .map((pathname) => assetKey(siteId, pathname));
+  if (stalePaths.length === 0) return;
+
+  const { error } = await client.storage.from(SITE_ASSETS_BUCKET).remove(stalePaths);
+  if (error) throw new Error(error.message);
+}
+
+async function listStoredObjectPaths(client: SupabaseClient, siteId: string): Promise<string[]> {
+  const prefix = sitePrefix(siteId);
+  const paths: string[] = [];
+  let offset = 0;
+  const limit = 1000;
+
+  while (true) {
+    const { data, error } = await client.storage.from(SITE_ASSETS_BUCKET).list(prefix, {
+      limit,
+      offset,
+      sortBy: { column: "name", order: "asc" },
+    });
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+
+    for (const item of data) {
+      if (item.id !== null) {
+        paths.push(`${prefix}${item.name}`);
+      }
+    }
+
+    if (data.length < limit) break;
+    offset += limit;
+  }
+
+  return paths;
 }
