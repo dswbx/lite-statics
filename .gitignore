@@ -3,6 +3,10 @@
 node_modules
 dist
 .logs
+.vendor
 supabase/.temp
 .idea
 .dev.vars
+.env
+.env.*
+!.env.example

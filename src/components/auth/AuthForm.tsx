@@ -16,16 +16,20 @@ export function AuthForm({
   busy,
   notice,
   pendingEmail,
+  googleEnabled,
   onSubmit,
   onVerifyCode,
+  onGoogleSignIn,
 }: {
   mode: AuthMode;
   setMode: (mode: AuthMode) => void;
   busy: boolean;
   notice: Notice;
   pendingEmail: string | null;
+  googleEnabled: boolean;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onVerifyCode: (code: string) => void | Promise<void>;
+  onGoogleSignIn: () => void | Promise<void>;
 }) {
   const [code, setCode] = useState("");
 
@@ -126,6 +130,25 @@ export function AuthForm({
             <TabsTab value="signin">Sign in</TabsTab>
           </TabsList>
         </Tabs>
+      )}
+
+      {mode !== "forgot" && googleEnabled && (
+        <>
+          <Button
+            type="button"
+            variant="line"
+            disabled={busy}
+            className="w-full"
+            onClick={() => void onGoogleSignIn()}
+          >
+            Continue with Google
+          </Button>
+          <div className="flex items-center gap-3 my-6">
+            <div className="h-px flex-1 bg-line" />
+            <span className="text-[12px] uppercase tracking-wide text-muted">or</span>
+            <div className="h-px flex-1 bg-line" />
+          </div>
+        </>
       )}
 
       <div className="grid gap-4">

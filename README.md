@@ -42,6 +42,7 @@ Before a real deploy, create the Cloudflare resources and replace the placeholde
 - D1 database named `static-host-db`
 - R2 bucket named `static-host-assets`
 - A real `COOKIE_SECRET` using `wrangler secret put COOKIE_SECRET`
+- A real `JWT_SECRET` using `wrangler secret put JWT_SECRET`
 
 Then run:
 
@@ -50,6 +51,26 @@ bun run deploy
 ```
 
 The deploy script builds the dashboard and Worker with the Cloudflare Vite plugin, applies remote D1 migrations, and deploys the generated Worker config.
+
+## Google sign-in (optional)
+
+Email/password works without Google. To enable **Continue with Google**:
+
+1. Install a `@supabase/lite` build that includes social OAuth (this repo vendors `vendor/supabase-lite-oauth.tgz` until a public npm release includes [PR #311](https://github.com/supabase/lite/pull/311)).
+2. In [Google Cloud Console](https://console.cloud.google.com/) → **Google Auth Platform**:
+   - Audience: External (add yourself under Test users while unverified).
+   - Scopes: `openid`, userinfo.email, userinfo.profile.
+   - Create a **Web application** OAuth client.
+   - Authorized JavaScript origins: `https://statics.supalite.run`, `http://localhost:5173`, `http://127.0.0.1:5173`.
+   - Authorized redirect URIs (lite callback, not the React page):
+     - `https://statics.supalite.run/auth/v1/callback`
+     - `http://localhost:5173/auth/v1/callback`
+     - `http://127.0.0.1:5173/auth/v1/callback`
+3. Local: copy `.env.example` to `.env` and fill `JWT_SECRET`, `COOKIE_SECRET`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. Keep `SITE_URL=http://localhost:5173` so Google’s `redirect_uri` is the Vite origin (lite otherwise defaults to `http://127.0.0.1:54321`). Mirror the same file as `.dev.vars` so the Cloudflare Vite plugin loads Worker secrets.
+4. Production: `wrangler versions secret put GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`, then `wrangler versions deploy` (or a full `bun run deploy`).
+5. Apply D1 migrations so `auth.flow_state` exists (`bun run db:migration:apply:local` / `:prod`).
+
+The Google button appears only when both secrets are set (see `GET /auth/v1/settings` → `external.google`).
 
 ## Troubleshooting
 
