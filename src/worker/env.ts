@@ -13,6 +13,10 @@ export interface Env {
   SITE_URL: string;
   EMAIL_FROM_ADDRESS: string;
   EMAIL_FROM_NAME: string;
+  /** Google OAuth web client ID; when set with GOOGLE_CLIENT_SECRET, enables Google login. */
+  GOOGLE_CLIENT_ID?: string;
+  /** Google OAuth client secret (`.env` / wrangler secret). */
+  GOOGLE_CLIENT_SECRET?: string;
 }
 
 export type WorkerContext = ExecutionContext;

@@ -5,7 +5,7 @@
    "type": "module",
    "scripts": {
       "dev": "bun run db:migration:apply:local && vite",
-      "dev:e2e": "rm -rf .wrangler-e2e/state && E2E=true bun run db:migration:apply:e2e && E2E=true vite --host 127.0.0.1 --port 5180 --strictPort",
+      "dev:e2e": "rm -rf .wrangler-e2e/state && E2E=true JWT_SECRET=\"${JWT_SECRET:-e2e-jwt-secret}\" COOKIE_SECRET=\"${COOKIE_SECRET:-e2e-cookie-secret}\" bun run db:migration:apply:e2e && E2E=true JWT_SECRET=\"${JWT_SECRET:-e2e-jwt-secret}\" COOKIE_SECRET=\"${COOKIE_SECRET:-e2e-cookie-secret}\" vite --host 127.0.0.1 --port 5180 --strictPort",
       "worker:dev": "wrangler dev --port 8787",
       "build": "tsc -b && vite build",
       "preview": "vite preview",
@@ -24,7 +24,7 @@
    },
    "dependencies": {
       "@base-ui/react": "^1.6.0",
-      "@supabase/lite": "0.7.1-next.5",
+      "@supabase/lite": "file:vendor/supabase-lite-oauth.tgz",
       "@supabase/supabase-js": "^2.97.0",
       "class-variance-authority": "^0.7.1",
       "clsx": "^2.1.1",
@@ -47,6 +47,7 @@
       "@types/react": "^19.0.8",
       "@types/react-dom": "^19.0.3",
       "@vitejs/plugin-react": "^4.3.4",
+      "happy-dom": "^20.11.2",
       "tailwindcss": "^4.0.0",
       "typescript": "^7.0.2",
       "vite": "^6.0.0",

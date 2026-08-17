@@ -174,5 +174,2061 @@
       }
     ]
   },
-  "vars": {}
+  "vars": {},
+  "enums": {},
+  "schema": {
+    "auth.users": [
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": true,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "aud",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "role",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "email",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "encrypted_password",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "phone",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": true,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "email_confirmed_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "confirmed_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": true,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "invited_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "confirmation_token",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "confirmation_sent_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "recovery_token",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "recovery_sent_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "email_change",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "email_change_token_new",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "email_change_token_current",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "email_change_sent_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "email_change_confirm_status",
+          "pgTypeName": "int2",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": true
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "phone_confirmed_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "phone_change",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "phone_change_token",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "phone_change_sent_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "reauthentication_token",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "reauthentication_sent_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "raw_app_meta_data",
+          "pgTypeName": "jsonb",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "raw_user_meta_data",
+          "pgTypeName": "jsonb",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "banned_until",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "deleted_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "is_sso_user",
+          "pgTypeName": "bool",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "is_anonymous",
+          "pgTypeName": "bool",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "last_sign_in_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "created_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "users",
+          "column": "updated_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      }
+    ],
+    "auth.sessions": [
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": true,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "user_id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "fkRef": {
+            "refSchema": "auth",
+            "refTable": "users",
+            "refColumn": "id"
+          },
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "not_after",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "refreshed_at",
+          "pgTypeName": "timestamp",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "user_agent",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "ip",
+          "pgTypeName": "inet",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "tag",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "refresh_token_hmac_key",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "refresh_token_counter",
+          "pgTypeName": "int8",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "scopes",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": true
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "created_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "updated_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "aal",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": true
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "sessions",
+          "column": "factor_id",
+          "pgTypeName": "uuid",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      }
+    ],
+    "auth.refresh_tokens": [
+      {
+        "context": {
+          "schema": "auth",
+          "table": "refresh_tokens",
+          "column": "id",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": true,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "refresh_tokens",
+          "column": "token",
+          "pgTypeName": "varchar",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "refresh_tokens",
+          "column": "user_id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "refresh_tokens",
+          "column": "session_id",
+          "pgTypeName": "uuid",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "fkRef": {
+            "refSchema": "auth",
+            "refTable": "sessions",
+            "refColumn": "id"
+          },
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "refresh_tokens",
+          "column": "revoked",
+          "pgTypeName": "bool",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "refresh_tokens",
+          "column": "parent",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "refresh_tokens",
+          "column": "created_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "refresh_tokens",
+          "column": "updated_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      }
+    ],
+    "auth.identities": [
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": true,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "provider",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "provider_id",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "user_id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "fkRef": {
+            "refSchema": "auth",
+            "refTable": "users",
+            "refColumn": "id"
+          },
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "identity_data",
+          "pgTypeName": "jsonb",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "email",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": true,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 255
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "last_sign_in_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "created_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "identities",
+          "column": "updated_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      }
+    ],
+    "auth.flow_state": [
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": true,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "user_id",
+          "pgTypeName": "uuid",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "auth_code",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "authentication_method",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "code_challenge_method",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": true
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "code_challenge",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "provider_type",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "provider_access_token",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "provider_refresh_token",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "auth_code_issued_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "invite_token",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "referrer",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "oauth_client_state_id",
+          "pgTypeName": "uuid",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "linking_target_id",
+          "pgTypeName": "uuid",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "email_optional",
+          "pgTypeName": "bool",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "created_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "flow_state",
+          "column": "updated_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      }
+    ],
+    "auth.audit_log_entries": [
+      {
+        "context": {
+          "schema": "auth",
+          "table": "audit_log_entries",
+          "column": "id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": true,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "audit_log_entries",
+          "column": "payload",
+          "pgTypeName": "json",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "audit_log_entries",
+          "column": "created_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "auth",
+          "table": "audit_log_entries",
+          "column": "ip_address",
+          "pgTypeName": "varchar",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false,
+          "lengthConstraint": 64
+        }
+      }
+    ],
+    "public.profiles": [
+      {
+        "context": {
+          "schema": "public",
+          "table": "profiles",
+          "column": "id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": true,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "fkRef": {
+            "refSchema": "auth",
+            "refTable": "users",
+            "refColumn": "id"
+          },
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "profiles",
+          "column": "email",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "profiles",
+          "column": "created_at",
+          "pgTypeName": "timestamptz",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      }
+    ],
+    "public.sites": [
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": true,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "owner_id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "fkRef": {
+            "refTable": "profiles",
+            "refColumn": "id"
+          },
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "slug",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": true,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "name",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "access_mode",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": true
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "password_hash",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "password_salt",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "expires_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "disabled_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "asset_count",
+          "pgTypeName": "int4",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "total_bytes",
+          "pgTypeName": "int4",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "manifest_json",
+          "pgTypeName": "text",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "deployed_at",
+          "pgTypeName": "timestamptz",
+          "nullable": true,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "created_at",
+          "pgTypeName": "timestamptz",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "sites",
+          "column": "updated_at",
+          "pgTypeName": "timestamptz",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      }
+    ],
+    "public.analytics_daily": [
+      {
+        "context": {
+          "schema": "public",
+          "table": "analytics_daily",
+          "column": "site_id",
+          "pgTypeName": "uuid",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "fkRef": {
+            "refTable": "sites",
+            "refColumn": "id"
+          },
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "analytics_daily",
+          "column": "day",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "analytics_daily",
+          "column": "path",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "analytics_daily",
+          "column": "status",
+          "pgTypeName": "int4",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "analytics_daily",
+          "column": "country",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "analytics_daily",
+          "column": "referrer_host",
+          "pgTypeName": "text",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      },
+      {
+        "context": {
+          "schema": "public",
+          "table": "analytics_daily",
+          "column": "views",
+          "pgTypeName": "int4",
+          "nullable": false,
+          "defaultValue": null,
+          "isPrimaryKey": false,
+          "isUnique": false,
+          "isSerial": false,
+          "isGenerated": false,
+          "hasCheck": false
+        },
+        "extra": {
+          "isArray": false
+        }
+      }
+    ]
+  },
+  "tableConstraints": [
+    {
+      "schema": "auth",
+      "table": "identities",
+      "kind": "unique",
+      "columns": [
+        "provider",
+        "provider_id"
+      ]
+    }
+  ],
+  "comments": []
 }

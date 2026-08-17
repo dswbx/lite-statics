@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
-import { consumeAuthHashSession } from "../lib/auth-hash-session";
+import { consumeAuthRedirectSession } from "../lib/auth-hash-session";
 import { resolveAuthSession } from "../lib/resolve-auth-session";
 import { supabase } from "../lib/supabase";
 
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [syncSession]);
 
   useEffect(() => {
-    void consumeAuthHashSession()
+    void consumeAuthRedirectSession()
       .then((result) => {
         if (!result) return;
         if (result.type === "recovery") {
