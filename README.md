@@ -56,7 +56,7 @@ The deploy script builds the dashboard and Worker with the Cloudflare Vite plugi
 
 Email/password works without Google. To enable **Continue with Google**:
 
-1. Install a `@supabase/lite` build that includes social OAuth (this repo vendors `vendor/supabase-lite-oauth.tgz` until a public npm release includes [PR #311](https://github.com/supabase/lite/pull/311)).
+1. Use `@supabase/lite` `0.8.1-next.1` or newer (includes social OAuth from [PR #311](https://github.com/supabase/lite/pull/311)).
 2. In [Google Cloud Console](https://console.cloud.google.com/) → **Google Auth Platform**:
    - Audience: External (add yourself under Test users while unverified).
    - Scopes: `openid`, userinfo.email, userinfo.profile.
